@@ -225,7 +225,7 @@ Yalnızca MediaPipe el + poz (model henüz yok), kare başına:
 | Profil, "El GPU / Poz CPU" (kullanıcı doğruladı), paralel | 9 | 110-120 ms | 70-90 | 80-100 |
 
 - Hedef ≥ 15 FPS (Tablo 2) bu telefonda **şu an tutmuyor** (~9 FPS). Ölçümde sınıflandırma modeli yok; modelin kendisi küçük olacağı için asıl yük MediaPipe.
-- Arka kamerada ve sol/sağ el etiketi için ölçüm henüz yok; ön kamerada kare başına süreler yukarıdaki gibi.
+- Sol/sağ el etiketi **ön kamerada gerçek elle uyuşuyor** (kullanıcı gözlemi, 24 Ekim; sayısal doğrulama yapılmadı). Arka kamera ölçümü yok.
 - Önlem adayları (denenmedi): pozu 2-3 karede bir çalıştırıp aradakileri ara değerle doldurmak, analiz görüntüsünü küçültmek, el ve poz için bağımsız (eşzamansız) kare akışı. Kare hızı düşük kalırsa **eğitimde zamansal seyreltme artırması** (30 FPS yerine ~10 FPS'e benzer örnekleme) eklenmeli; model zaten sabit 64 kareye yeniden örnekleniyor.
 - Karar: 30 Ekim toplantısında "çıkarım hızı hedefin altında, çözüm yolları yukarıda" diye bildirilir; hedef sayısı tezde ölçülen değerle revize edilebilir.
 
