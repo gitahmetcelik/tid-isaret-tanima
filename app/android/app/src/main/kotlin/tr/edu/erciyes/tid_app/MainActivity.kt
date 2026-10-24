@@ -12,6 +12,7 @@ import io.flutter.plugin.common.MethodChannel
 class MainActivity : FlutterActivity() {
     private var sink: EventChannel.EventSink? = null
     private var pendingPermission: MethodChannel.Result? = null
+    private var cameraView: CameraPlatformView? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -30,11 +31,14 @@ class MainActivity : FlutterActivity() {
                     pendingPermission = result
                     ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), 42)
                 }
+            } else if (call.method == "setLens") {
+                cameraView?.setFront(call.arguments as? Boolean ?: false)
+                result.success(null)
             } else result.notImplemented()
         }
 
         flutterEngine.platformViewsController.registry
-            .registerViewFactory("tid/camera_view", CameraViewFactory(this) { sink })
+            .registerViewFactory("tid/camera_view", CameraViewFactory(this, { sink }) { cameraView = it })
     }
 
     override fun onRequestPermissionsResult(code: Int, permissions: Array<out String>, grants: IntArray) {

@@ -28,6 +28,7 @@ class _CameraScreenState extends State<CameraScreen> {
   static const _events = EventChannel('tid/landmarks');
 
   bool? _granted;
+  bool _front = false;
   Map<dynamic, dynamic> _stats = const {};
 
   @override
@@ -44,6 +45,11 @@ class _CameraScreenState extends State<CameraScreen> {
     });
   }
 
+  void _toggleLens() {
+    setState(() => _front = !_front);
+    _control.invokeMethod('setLens', _front);
+  }
+
   @override
   Widget build(BuildContext context) {
     final fps = (_stats['fps'] as num?)?.toStringAsFixed(1) ?? '-';
@@ -51,7 +57,13 @@ class _CameraScreenState extends State<CameraScreen> {
     final hands = _stats['hands'] ?? '-';
     final pose = _stats['pose'] == true ? 'var' : 'yok';
     return Scaffold(
-      appBar: AppBar(title: const Text('TİD Tanıma')),
+      appBar: AppBar(title: const Text('TİD Tanıma'), actions: [
+        IconButton(
+          tooltip: _front ? 'Arka kameraya geç' : 'Ön kameraya geç',
+          icon: Icon(_front ? Icons.camera_rear : Icons.camera_front),
+          onPressed: _granted == true ? _toggleLens : null,
+        ),
+      ]),
       body: switch (_granted) {
         null => const Center(child: CircularProgressIndicator()),
         false => const Center(child: Text('Kamera izni gerekli.')),
@@ -59,7 +71,7 @@ class _CameraScreenState extends State<CameraScreen> {
             const Expanded(child: AndroidView(viewType: 'tid/camera_view')),
             Padding(
               padding: const EdgeInsets.all(12),
-              child: Text('FPS: $fps   Çıkarım: $ms ms   El: $hands   Gövde: $pose'),
+              child: Text('${_front ? "Ön" : "Arka"} kamera   FPS: $fps   Çıkarım: $ms ms   El: $hands   Gövde: $pose'),
             ),
           ]),
       },

@@ -17,6 +17,8 @@ class LandmarkOverlay(context: Context) : View(context) {
     @Volatile private var pose: FloatArray? = null
     @Volatile private var imgW = 1
     @Volatile private var imgH = 1
+    /** On kamerada onizleme aynalanir; kaplama da x ekseninde aynalanmali. */
+    @Volatile var mirror = false
 
     fun update(hands: List<FloatArray?>, pose: FloatArray?, imgW: Int, imgH: Int) {
         this.hands = hands; this.pose = pose; this.imgW = imgW; this.imgH = imgH
@@ -27,7 +29,7 @@ class LandmarkOverlay(context: Context) : View(context) {
         val scale = max(width / imgW.toFloat(), height / imgH.toFloat())
         val dx = (width - imgW * scale) / 2f
         val dy = (height - imgH * scale) / 2f
-        fun px(x: Float) = x * imgW * scale + dx
+        fun px(x: Float) = (if (mirror) 1f - x else x) * imgW * scale + dx
         fun py(y: Float) = y * imgH * scale + dy
         for (h in hands) {
             h ?: continue
