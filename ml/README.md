@@ -22,3 +22,9 @@ Veri `data/archive (1)/` altında olmalıdır (Kaggle `sttaseen/autsl`, bkz. doc
 ```bash
 ml/.venv/Scripts/python.exe ml/extract_keypoints.py --split train --classes 30,175,65 --workers 4 --out data/keypoints_10
 ```
+
+## Android uygulamasına model kopyalama
+
+```bash
+cp ml/models/hand_landmarker.task ml/models/pose_landmarker_lite.task app/android/app/src/main/assets/
+```

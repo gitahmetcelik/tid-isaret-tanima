@@ -24,3 +24,6 @@ local.properties
 
 # MediaPipe model dosyalari (ml/README.md'deki komutla indirilir)
 ml/models/*.task
+
+# Android'e gomulen MediaPipe modelleri (ml/README.md'deki komutla indirilip kopyalanir)
+app/android/app/src/main/assets/*.task
