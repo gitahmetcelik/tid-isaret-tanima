@@ -1,0 +1,26 @@
+# veri ve cikarilmis noktalar repoya girmez (docs/data.md'de yol belirtilir)
+data/
+*.npz
+*.npy
+*.mp4
+
+# python
+ml/.venv/
+__pycache__/
+*.pyc
+
+# egitim ciktilari (ozet JSON'lar experiments/ altinda tutulur)
+checkpoints/
+runs/
+
+# pdf/zip kaynaklari
+*.zip
+
+# flutter / android
+app/build/
+app/.dart_tool/
+.gradle/
+local.properties
+
+# MediaPipe model dosyalari (ml/README.md'deki komutla indirilir)
+ml/models/*.task
