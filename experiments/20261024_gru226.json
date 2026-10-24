@@ -1,0 +1,11 @@
+{
+  "model": "BiGRU-2x256",
+  "n_classes": 226,
+  "classes": "all",
+  "epochs": 60,
+  "seed": 0,
+  "n_train": 28132,
+  "best_val": 0.8990493435943866,
+  "test": 0.8799786153434911,
+  "device": "cuda"
+}

@@ -233,6 +233,12 @@ Yalnızca MediaPipe el + poz (model henüz yok), kare başına:
 
 - `data/keypoints/`: train 28.132 / val 4.418 / test 3.741. 11 video bozuk (yarım MP4), listesi `docs/data.md`'de. Test sonuçları 3.741 video üzerinden raporlanır.
 
+### İlk 226 sınıflı sonuç (24 Ekim)
+
+BiGRU 2×256, 60 epoch, tek tohum (0), zamansal seyreltme artırmalı, ~16 dk (RTX 3050): **doğrulama %89,9, test %88,0** (3.741 video, işaretçiden bağımsız). Hedef (≥ %85) bu ilk denemede tutuyor.
+
+Dikkat: tek koşu, tohum aralığı bilinmiyor; en iyi epoch doğrulamaya göre seçildi, test yalnızca sonda ölçüldü. Telefondaki gerçek sonuç bundan düşük olacak (Kinect/stüdyo verisi ile telefon kamerası farkı, P-07). Model ~2,1 M parametre (~8,4 MB fp32; 8-bit sonrası ~2,1 MB bekleniyor, ölçülmedi), 10 MB sınırının altında. `experiments/20261024_gru226.json`.
+
 ## 8. Ekip kararı bekleyen açık sorular
 
 1. `[?]` Eğitim: WSL2 + TensorFlow mu, PyTorch + `ai-edge-torch` mi (P-02)?

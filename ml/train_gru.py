@@ -50,13 +50,14 @@ def resample(x, t_out):
     return x[lo] * (1 - w) + x[hi] * w
 
 
+def fix_length(hands, pose, hok):
+    return (resample(hands, T_FIXED).astype(np.float32), resample(pose, T_FIXED).astype(np.float32),
+            (resample(hok, T_FIXED) > 0.5).astype(np.float32))
+
+
 def featurize(path):
-    d = np.load(path)
-    hands, pose, hok = normalize(d)
-    hands = resample(hands, T_FIXED)
-    pose = resample(pose, T_FIXED)
-    hok = (resample(hok, T_FIXED) > 0.5).astype(np.float32)
-    return hands, pose, hok  # [T,2,21,2], [T,7,2], [T,2]
+    """Normalize edilmis ham dizi (degisken uzunluk); sabit uzunluga batch sirasinda getirilir."""
+    return normalize(np.load(path))  # [T,2,21,2], [T,7,2], [T,2]
 
 
 def to_vec(hands, pose, hok):
@@ -79,11 +80,17 @@ def load_split(kp_dir, split, label_map, labels_csv):
 
 
 def augment(hands, pose, hok, rng):
-    """Egitimde: rastgele olcek, +-10 derece donme, kaydirma, zamansal kirpma/hiz."""
-    t0 = rng.integers(0, 8)
-    t1 = T_FIXED - rng.integers(0, 8)
-    hands, pose, hok = hands[t0:t1], pose[t0:t1], hok[t0:t1]
-    hands, pose, hok = resample(hands, T_FIXED), resample(pose, T_FIXED), (resample(hok, T_FIXED) > 0.5).astype(np.float32)
+    """Egitimde: zamansal seyreltme (telefonun dusuk kare hizini taklit eder), kirpma,
+    rastgele olcek, +-10 derece donme, kaydirma."""
+    t = len(hands)
+    stride = int(rng.choice([1, 1, 2, 3]))  # 30 FPS / 15 FPS / 10 FPS
+    idx = np.arange(int(rng.integers(0, stride)), t, stride)
+    if len(idx) >= 8:
+        hands, pose, hok = hands[idx], pose[idx], hok[idx]
+    t = len(hands)
+    cut = int(t * 0.1)
+    t0 = int(rng.integers(0, cut + 1)); t1 = t - int(rng.integers(0, cut + 1))
+    hands, pose, hok = fix_length(hands[t0:t1], pose[t0:t1], hok[t0:t1])
     a = np.deg2rad(rng.uniform(-10, 10))
     R = np.array([[np.cos(a), -np.sin(a)], [np.sin(a), np.cos(a)]], np.float32)
     s = rng.uniform(0.9, 1.1)
@@ -113,8 +120,7 @@ def batches(X, y, bs, rng, train):
         vecs = []
         for j in ids:
             h, p, k = X[j]
-            if train:
-                h, p, k = augment(h, p, k, rng)
+            h, p, k = augment(h, p, k, rng) if train else fix_length(h, p, k)
             vecs.append(to_vec(h, p, k))
         yield torch.tensor(np.stack(vecs)), torch.tensor(y[ids])
 
@@ -130,24 +136,26 @@ def evaluate(model, X, y, dev):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--classes", default="30,175,65,86,196,211,83,52,14,20")
-    ap.add_argument("--kp", default=str(ROOT / "data" / "keypoints_10"))
+    ap.add_argument("--classes", default="all", help="virgullu sinif no listesi veya 'all' (226)")
+    ap.add_argument("--kp", default=str(ROOT / "data" / "keypoints"))
+    ap.add_argument("--hidden", type=int, default=256)
+    ap.add_argument("--batch", type=int, default=128)
     ap.add_argument("--data", default=str(ROOT / "data" / "archive (1)"))
     ap.add_argument("--epochs", type=int, default=40)
     ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--name", default="gru10")
+    ap.add_argument("--name", default="gru226")
     a = ap.parse_args()
 
     torch.manual_seed(a.seed)
     rng = np.random.default_rng(a.seed)
-    classes = [int(c) for c in a.classes.split(",")]
+    classes = list(range(226)) if a.classes == "all" else [int(c) for c in a.classes.split(",")]
     label_map = {c: i for i, c in enumerate(classes)}
     data = {s: load_split(a.kp, s, label_map, Path(a.data) / f"{s}_labels.csv") for s in ("train", "val", "test")}
     for s, (X, y) in data.items():
         print(s, len(X), flush=True)
 
     dev = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = GRUNet(len(classes)).to(dev)
+    model = GRUNet(len(classes), hidden=a.hidden).to(dev)
     opt = torch.optim.AdamW(model.parameters(), lr=2e-3, weight_decay=1e-2)
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, a.epochs)
     best, best_state = 0.0, None
@@ -155,7 +163,7 @@ def main():
     for ep in range(1, a.epochs + 1):
         model.train()
         tot = 0.0
-        for xb, yb in batches(*data["train"], 64, rng, True):
+        for xb, yb in batches(*data["train"], a.batch, rng, True):
             opt.zero_grad()
             loss = nn.functional.cross_entropy(model(xb.to(dev)), yb.to(dev), label_smoothing=0.1)
             loss.backward()
@@ -173,7 +181,7 @@ def main():
     out = ROOT / "experiments"
     out.mkdir(exist_ok=True)
     (out / f"{time.strftime('%Y%m%d')}_{a.name}.json").write_text(
-        json.dumps(dict(model="BiGRU-2x128", classes=classes, epochs=a.epochs, seed=a.seed,
+        json.dumps(dict(model=f"BiGRU-2x{a.hidden}", n_classes=len(classes), classes=classes if len(classes) < 30 else "all", epochs=a.epochs, seed=a.seed,
                         n_train=len(data["train"][1]), best_val=best, test=test, device=str(dev)), indent=2),
         encoding="utf-8")
 
