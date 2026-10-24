@@ -36,7 +36,8 @@ class CameraPlatformView(
     private val preview = PreviewView(context).apply { implementationMode = PreviewView.ImplementationMode.COMPATIBLE }
     private val overlay = LandmarkOverlay(context)
     private val executor = Executors.newSingleThreadExecutor()
-    private val pipeline = LandmarkPipeline(context)
+    @Volatile private var wantMode = 1
+    private var pipeline: LandmarkPipeline? = null
     private var provider: ProcessCameraProvider? = null
     private var front = false
     private var prev: Preview? = null
@@ -44,6 +45,9 @@ class CameraPlatformView(
     private var lastReport = System.nanoTime()
     private var frames = 0
     private var inferSum = 0L
+    private var convSum = 0L
+    private var handSum = 0L
+    private var poseSum = 0L
 
     init {
         root.addView(preview, FrameLayout.LayoutParams(-1, -1))
@@ -58,7 +62,12 @@ class CameraPlatformView(
                 .build()
             analysis!!.setAnalyzer(executor) { img ->
                 try {
-                    val f = pipeline.process(img)
+                    var pl = pipeline
+                    if (pl == null || pl.mode != wantMode) {
+                        pl?.close()
+                        pl = LandmarkPipeline(context, wantMode).also { pipeline = it }
+                    }
+                    val f = pl.process(img)
                     overlay.update(f.hands, f.pose, f.width, f.height)
                     report(f)
                 } finally {
@@ -75,6 +84,8 @@ class CameraPlatformView(
         ContextCompat.getMainExecutor(context).execute { bind() }
     }
 
+    fun setMode(m: Int) { wantMode = m }
+
     private fun bind() {
         val p = provider ?: return
         overlay.mirror = front
@@ -84,17 +95,20 @@ class CameraPlatformView(
     }
 
     private fun report(f: LandmarkPipeline.Frame) {
-        frames++; inferSum += f.inferMs
+        frames++; inferSum += f.inferMs; convSum += f.convMs; handSum += f.handMs; poseSum += f.poseMs
         val now = System.nanoTime()
         if (now - lastReport >= 500_000_000L) {
             val fps = frames * 1e9 / (now - lastReport)
             val msg = mapOf(
                 "fps" to fps, "inferMs" to inferSum.toDouble() / frames,
                 "hands" to f.hands.count { it != null }, "pose" to (f.pose != null),
-                "w" to f.width, "h" to f.height, "front" to front,
+                // MediaPipe'in ham etiketi (slot 0 = Left, slot 1 = Right); gercek elle karsilastirmak icin
+                "sides" to f.hands.withIndex().filter { it.value != null }.joinToString("+") { if (it.index == 0) "Left" else "Right" },
+                "w" to f.width, "h" to f.height, "front" to front, "delegate" to (pipeline?.delegate ?: "-"),
+                "convMs" to convSum.toDouble() / frames, "handMs" to handSum.toDouble() / frames, "poseMs" to poseSum.toDouble() / frames,
             )
             ContextCompat.getMainExecutor(context).execute { events()?.success(msg) }
-            frames = 0; inferSum = 0; lastReport = now
+            frames = 0; inferSum = 0; convSum = 0; handSum = 0; poseSum = 0; lastReport = now
         }
     }
 
@@ -102,8 +116,8 @@ class CameraPlatformView(
 
     override fun dispose() {
         provider?.unbindAll()
-        executor.shutdown()
-        pipeline.close()
+        executor.execute { pipeline?.close() }
+        executor.shutdown() // kuyruktaki close() calisir
         onDisposed(null)
     }
 }

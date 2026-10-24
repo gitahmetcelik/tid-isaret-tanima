@@ -34,6 +34,9 @@ class MainActivity : FlutterActivity() {
             } else if (call.method == "setLens") {
                 cameraView?.setFront(call.arguments as? Boolean ?: false)
                 result.success(null)
+            } else if (call.method == "setMode") {
+                cameraView?.setMode(call.arguments as? Int ?: 1)
+                result.success(null)
             } else result.notImplemented()
         }
 

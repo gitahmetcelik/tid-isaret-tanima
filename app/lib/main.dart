@@ -29,6 +29,7 @@ class _CameraScreenState extends State<CameraScreen> {
 
   bool? _granted;
   bool _front = false;
+  int _mode = 1; // 0 hepsi CPU, 1 el GPU + poz CPU, 2 hepsi GPU
   Map<dynamic, dynamic> _stats = const {};
 
   @override
@@ -50,11 +51,19 @@ class _CameraScreenState extends State<CameraScreen> {
     _control.invokeMethod('setLens', _front);
   }
 
+  void _setMode(int m) {
+    setState(() => _mode = m);
+    _control.invokeMethod('setMode', m);
+  }
+
   @override
   Widget build(BuildContext context) {
     final fps = (_stats['fps'] as num?)?.toStringAsFixed(1) ?? '-';
     final ms = (_stats['inferMs'] as num?)?.toStringAsFixed(0) ?? '-';
     final hands = _stats['hands'] ?? '-';
+    final sides = (_stats['sides'] as String?)?.isEmpty ?? true ? 'yok' : _stats['sides'];
+    String f0(String k) => (_stats[k] as num?)?.toStringAsFixed(0) ?? '-';
+    final detail = 'Dönüşüm ${f0('convMs')} ms · El ${f0('handMs')} ms · Poz ${f0('poseMs')} ms · ${_stats['w'] ?? '-'}x${_stats['h'] ?? '-'}';
     final pose = _stats['pose'] == true ? 'var' : 'yok';
     return Scaffold(
       appBar: AppBar(title: const Text('TİD Tanıma'), actions: [
@@ -70,8 +79,21 @@ class _CameraScreenState extends State<CameraScreen> {
         true => Column(children: [
             const Expanded(child: AndroidView(viewType: 'tid/camera_view')),
             Padding(
-              padding: const EdgeInsets.all(12),
-              child: Text('${_front ? "Ön" : "Arka"} kamera   FPS: $fps   Çıkarım: $ms ms   El: $hands   Gövde: $pose'),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              child: SegmentedButton<int>(
+                segments: const [
+                  ButtonSegment(value: 0, label: Text('CPU')),
+                  ButtonSegment(value: 1, label: Text('El GPU')),
+                  ButtonSegment(value: 2, label: Text('GPU')),
+                ],
+                selected: {_mode},
+                onSelectionChanged: (s) => _setMode(s.first),
+              ),
+            ),
+            Text('${_stats['delegate'] ?? '-'}'),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+              child: Text('${_front ? "Ön" : "Arka"} kamera   FPS: $fps   Çıkarım: $ms ms   El: $hands ($sides)   Gövde: $pose\n$detail'),
             ),
           ]),
       },
