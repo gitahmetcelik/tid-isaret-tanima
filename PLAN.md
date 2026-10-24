@@ -229,6 +229,10 @@ Yalnızca MediaPipe el + poz (model henüz yok), kare başına:
 - Önlem adayları (denenmedi): pozu 2-3 karede bir çalıştırıp aradakileri ara değerle doldurmak, analiz görüntüsünü küçültmek, el ve poz için bağımsız (eşzamansız) kare akışı. Kare hızı düşük kalırsa **eğitimde zamansal seyreltme artırması** (30 FPS yerine ~10 FPS'e benzer örnekleme) eklenmeli; model zaten sabit 64 kareye yeniden örnekleniyor.
 - Karar: 30 Ekim toplantısında "çıkarım hızı hedefin altında, çözüm yolları yukarıda" diye bildirilir; hedef sayısı tezde ölçülen değerle revize edilebilir.
 
+### Tüm veri nokta çıkarımı (24 Ekim, bu makinede)
+
+- `data/keypoints/`: train 28.132 / val 4.418 / test 3.741. 11 video bozuk (yarım MP4), listesi `docs/data.md`'de. Test sonuçları 3.741 video üzerinden raporlanır.
+
 ## 8. Ekip kararı bekleyen açık sorular
 
 1. `[?]` Eğitim: WSL2 + TensorFlow mu, PyTorch + `ai-edge-torch` mi (P-02)?
