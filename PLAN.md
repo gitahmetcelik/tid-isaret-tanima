@@ -214,7 +214,7 @@ Boru hattı PDF Şekil 1'deki gibi; ek olarak şu kararlar öneriliyor:
 - El bulunma oranı: sol %82, sağ %86; hiç el bulunmayan kare oranı %3,7; gövde noktası her karede bulundu.
 - Sol/sağ el etiketi, poz sol/sağ bileğiyle %98 uyumlu (28.689 el-kare). AUTSL videoları aynalanmamış. Telefon ön kamerası görüntüsü aynalı olabilir: Android'de aynı kontrol yapılmadan model kullanılmaz (P-07).
 
-### Telefon hız ölçümü (24 Ekim, Redmi Note 10 Pro / M2101K6G, profil sürümü, arka kamera, 24 Ekim)
+### Telefon hız ölçümü (24 Ekim, Redmi Note 10 Pro / M2101K6G, profil sürümü, **ön kamera**, hepsi ön kamerada ölçüldü)
 
 Yalnızca MediaPipe el + poz (model henüz yok), kare başına:
 
@@ -222,10 +222,10 @@ Yalnızca MediaPipe el + poz (model henüz yok), kare başına:
 |---|---|---|---|---|
 | Debug, CPU, ardışık | ~5 | 200-300 ms | 150-180 | 70-80 |
 | Profil, hepsi GPU, paralel | 7 | 120-130 ms | 90-120 | ~100 |
-| Profil, mod belirtilmedi (büyük olasılıkla "El GPU / Poz CPU"), paralel | 9 | 110-120 ms | 70-90 | 80-100 |
+| Profil, "El GPU / Poz CPU" (kullanıcı doğruladı), paralel | 9 | 110-120 ms | 70-90 | 80-100 |
 
 - Hedef ≥ 15 FPS (Tablo 2) bu telefonda **şu an tutmuyor** (~9 FPS). Ölçümde sınıflandırma modeli yok; modelin kendisi küçük olacağı için asıl yük MediaPipe.
-- Sol/sağ el etiketi ve ön kamera denemeleri henüz kayıtlı değil.
+- Arka kamerada ve sol/sağ el etiketi için ölçüm henüz yok; ön kamerada kare başına süreler yukarıdaki gibi.
 - Önlem adayları (denenmedi): pozu 2-3 karede bir çalıştırıp aradakileri ara değerle doldurmak, analiz görüntüsünü küçültmek, el ve poz için bağımsız (eşzamansız) kare akışı. Kare hızı düşük kalırsa **eğitimde zamansal seyreltme artırması** (30 FPS yerine ~10 FPS'e benzer örnekleme) eklenmeli; model zaten sabit 64 kareye yeniden örnekleniyor.
 - Karar: 30 Ekim toplantısında "çıkarım hızı hedefin altında, çözüm yolları yukarıda" diye bildirilir; hedef sayısı tezde ölçülen değerle revize edilebilir.
 
