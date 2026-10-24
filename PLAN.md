@@ -239,6 +239,12 @@ BiGRU 2×256, 60 epoch, tek tohum (0), zamansal seyreltme artırmalı, ~16 dk (R
 
 Dikkat: tek koşu, tohum aralığı bilinmiyor; en iyi epoch doğrulamaya göre seçildi, test yalnızca sonda ölçüldü. Telefondaki gerçek sonuç bundan düşük olacak (Kinect/stüdyo verisi ile telefon kamerası farkı, P-07). Model ~2,1 M parametre (~8,4 MB fp32; 8-bit sonrası ~2,1 MB bekleniyor, ölçülmedi), 10 MB sınırının altında. `experiments/20261024_gru226.json`.
 
+### LiteRT dönüşümü ve telefon paritesi (24 Ekim)
+
+- PyTorch → Keras ağırlık taşıma → LiteRT (`ai-edge-torch` Windows'ta kurulamadığı için). Tam test seti (3.741): PyTorch %88,00; LiteRT fp32 %88,00 (aynı tahmin %100); int8 dinamik aralık %88,00 (aynı tahmin %99,5). Boyut: fp32 9,43 MB, **int8 3,19 MB** (≤ 10 MB hedefi sağlandı).
+- Telefon öz-testi (Redmi Note 10 Pro, Kotlin ön işleme + LiteRT int8, gömülü 200 test örneği): doğruluk %91,5 (Python aynı 200 örnekte %92,0), **Python ile aynı tahmin %99,5**, ~48 ms/örnek (ön işleme + çıkarım). Kotlin ve Python ön işlemesi uyumlu.
+- Bu ölçüm kaydedilmiş noktalarla yapıldı; kamera + MediaPipe + gerçek işaretle doğruluk ayrıca ölçülecek (gönüllü testi).
+
 ## 8. Ekip kararı bekleyen açık sorular
 
 1. `[?]` Eğitim: WSL2 + TensorFlow mu, PyTorch + `ai-edge-torch` mi (P-02)?

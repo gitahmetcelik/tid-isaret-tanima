@@ -2,6 +2,7 @@ package tr.edu.erciyes.tid_app
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import io.flutter.embedding.android.FlutterActivity
@@ -40,18 +41,21 @@ class MainActivity : FlutterActivity() {
                 cameraView?.setMode(call.arguments as? Int ?: 1)
                 result.success(null)
             } else if (call.method == "selftest") {
-                runSelfTest(result)
+                runSelfTest { result.success(it) }
             } else if (call.method == "record") {
                 cameraView?.record(call.arguments as? Boolean ?: false, result) ?: result.success(null)
             } else result.notImplemented()
         }
+
+        // adb ile: am start ... --ez selftest true  -> sonuc logcat'te (etiket TIDSELFTEST)
+        if (intent.getBooleanExtra("selftest", false)) runSelfTest { }
 
         flutterEngine.platformViewsController.registry
             .registerViewFactory("tid/camera_view", CameraViewFactory(this, { sink }) { cameraView = it })
     }
 
     /** Kotlin on isleme + LiteRT'in Python ile ayni sonucu verdigini gomulu 200 test ornegiyle dogrular. */
-    private fun runSelfTest(result: MethodChannel.Result) {
+    private fun runSelfTest(done: (Map<String, Any>) -> Unit) {
         Thread {
             val reply: Map<String, Any> = try {
                 val clf = SignClassifier(this)
@@ -77,7 +81,8 @@ class MainActivity : FlutterActivity() {
                 mapOf("n" to n, "accuracy" to correct.toDouble() / n, "agreePython" to agree.toDouble() / n,
                     "msPerSample" to (System.nanoTime() - t0) / 1_000_000.0 / n)
             } catch (e: Exception) { mapOf("error" to (e.message ?: e.toString())) }
-            runOnUiThread { result.success(reply) }
+            Log.i("TIDSELFTEST", reply.toString())
+            runOnUiThread { done(reply) }
         }.start()
     }
 
