@@ -97,6 +97,7 @@ def main():
     ap.add_argument("--split", default="train", choices=["train", "val", "test"])
     ap.add_argument("--classes", default="", help="virgullu sinif no listesi; bos = hepsi")
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--shard", default="0/1", help="k/n: videolari n parcaya bol, k. parcayi isle (0 tabanli); birden cok makinede paralel calismak icin")
     ap.add_argument("--workers", type=int, default=4)
     a = ap.parse_args()
 
@@ -104,6 +105,8 @@ def main():
     rows = [r for r in csv.reader(open(Path(a.data) / f"{a.split}_labels.csv"))]
     if keep:
         rows = [r for r in rows if int(r[1]) in keep]
+    k, n = (int(x) for x in a.shard.split("/"))
+    rows = rows[k::n]
     if a.limit:
         rows = rows[: a.limit]
     out = Path(a.out) / a.split

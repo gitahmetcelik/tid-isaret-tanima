@@ -28,3 +28,13 @@ ml/.venv/Scripts/python.exe ml/extract_keypoints.py --split train --classes 30,1
 ```bash
 cp ml/models/hand_landmarker.task ml/models/pose_landmarker_lite.task app/android/app/src/main/assets/
 ```
+
+## Tüm veri, birden çok makinede
+
+Her makine kendi parçasını işler (0, 1, 2 / 3); çıktılar `data/keypoints/<split>/` altında birleştirilir:
+
+```bash
+ml/.venv/Scripts/python.exe ml/extract_keypoints.py --split train --shard 0/3 --workers 8 --out data/keypoints
+```
+
+`val` ve `test` için aynı komutu `--split` değiştirerek çalıştırın. Ölçülen hız: 10 işçi ile ~0,77 sn/video (toplam ~36.300 video ≈ 7,7 saat tek makinede, 3 makinede ~2,6 saat).
