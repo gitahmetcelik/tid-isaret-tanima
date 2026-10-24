@@ -246,6 +246,12 @@ Dikkat: tek koşu, tohum aralığı bilinmiyor; en iyi epoch doğrulamaya göre 
 - Canlı demo (24 Ekim, Ahmet, kaydet-tanı, Redmi Note 10 Pro): kullanıcı gözlemi "yaklaşık doğru sonuçlar veriyor"; sayısal ölçüm yok, hangi işaretlerin denendiği kaydedilmedi. Resmî gönüllü testi (≥ %75, 30 işaret) ayrıca yapılacak.
 - Bu ölçüm kaydedilmiş noktalarla yapıldı; kamera + MediaPipe + gerçek işaretle doğruluk ayrıca ölçülecek (gönüllü testi).
 
+### Reddetme eşiği ve sürekli tanıma (24 Ekim)
+
+- Güven (en yüksek softmax olasılığı) eşiği `ml/calibrate_threshold.py` ile kalibre edildi. Test setinde (3.741): eşik 0,5 → kabul edilen örnekler %81, bunlarda doğruluk %95,8; 0,6 → %75 / %96,8; 0,7 → %69 / %97,9; 0,8 → %58 / %98,4. Varsayılan **0,6**, uygulamada kaydırıcıyla ayarlanır. Not: model etiket yumuşatmasıyla (0,1) eğitildiği için olasılıklar düşük kalır.
+- Sözlük dışı hareket için gerçek veri yok; sahte negatiflerle (eller yok, kareler karışık, hareketsiz, gürültü) eşik 0,7'de kabul oranı sırasıyla %4 / %17 / %2 / %0. Gerçek sözlük dışı işaretlerle ölçülmedi: **bu, gerçek reddetme başarısı değildir.**
+- Sürekli tanıma (Kotlin `SegmentTracker`): işaret alanında el (omuz ortasının 1 omuz genişliği altından yukarıda) 2 ardışık karede görülünce segment açılır (önceki 8 kare eklenir), 600 ms etkinlik olmazsa ya da 6 sn dolarsa kapanır; 12 kareden kısa segmentler atılır. Segment modele verilir, eşiği geçen kelime metne eklenir. **Telefonda ölçülmedi; eşik değerleri (600 ms, 8 kare, 12 kare) tahminidir.**
+
 ## 8. Ekip kararı bekleyen açık sorular
 
 1. `[?]` Eğitim: WSL2 + TensorFlow mu, PyTorch + `ai-edge-torch` mi (P-02)?

@@ -40,6 +40,9 @@ class MainActivity : FlutterActivity() {
             } else if (call.method == "setMode") {
                 cameraView?.setMode(call.arguments as? Int ?: 1)
                 result.success(null)
+            } else if (call.method == "setContinuous") {
+                cameraView?.setContinuous(call.arguments as? Boolean ?: false)
+                result.success(null)
             } else if (call.method == "selftest") {
                 runSelfTest { result.success(it) }
             } else if (call.method == "record") {

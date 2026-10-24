@@ -43,6 +43,8 @@ class CameraPlatformView(
     private val rec = ArrayList<SignClassifier.Sample>()
     private var classifier: SignClassifier? = null
     private val classifyExec = Executors.newSingleThreadExecutor()
+    @Volatile private var continuous = false
+    private val tracker = SegmentTracker { frames -> classifySegment(frames) }
     private var pipeline: LandmarkPipeline? = null
     private var provider: ProcessCameraProvider? = null
     private var front = false
@@ -77,6 +79,8 @@ class CameraPlatformView(
                     if (recording) synchronized(recLock) {
                         rec.add(SignClassifier.Sample(f.hands.toTypedArray(), f.pose, f.width, f.height))
                     }
+                    if (continuous) tracker.add(
+                        SignClassifier.Sample(f.hands.toTypedArray(), f.pose, f.width, f.height), System.nanoTime())
                     overlay.update(f.hands, f.pose, f.width, f.height)
                     report(f)
                 } finally {
@@ -94,6 +98,29 @@ class CameraPlatformView(
     }
 
     fun setMode(m: Int) { wantMode = m }
+
+    fun setContinuous(c: Boolean) { synchronized(recLock) { tracker.reset() }; continuous = c }
+
+    /** Surekli modda bir segment kapaninca siniflandirir ve olay akisiyla Dart'a gonderir. */
+    private fun classifySegment(frames: List<SignClassifier.Sample>) {
+        classifyExec.execute {
+            try {
+                val c = classifier ?: SignClassifier(context).also { classifier = it }
+                val t0 = System.nanoTime()
+                val top = c.classify(frames)
+                val seg = mapOf(
+                    "frames" to frames.size,
+                    "ms" to (System.nanoTime() - t0) / 1_000_000,
+                    "top" to top.map { mapOf("name" to it.name, "p" to it.prob.toDouble()) },
+                )
+                ContextCompat.getMainExecutor(context).execute { events()?.success(mapOf("segment" to seg)) }
+            } catch (e: Exception) {
+                ContextCompat.getMainExecutor(context).execute {
+                    events()?.success(mapOf("segment" to mapOf("error" to (e.message ?: e.toString()))))
+                }
+            }
+        }
+    }
 
     /** Kaydi baslat / bitir; bitirince kare dizisini siniflandirip ilk 3 tahmini dondurur. */
     fun record(start: Boolean, result: MethodChannel.Result) {
@@ -144,7 +171,7 @@ class CameraPlatformView(
                 "hands" to f.hands.count { it != null }, "pose" to (f.pose != null),
                 // MediaPipe'in ham etiketi (slot 0 = Left, slot 1 = Right); gercek elle karsilastirmak icin
                 "sides" to f.hands.withIndex().filter { it.value != null }.joinToString("+") { if (it.index == 0) "Left" else "Right" },
-                "w" to f.width, "h" to f.height, "front" to front, "recFrames" to synchronized(recLock) { rec.size }, "recording" to recording, "delegate" to (pipeline?.delegate ?: "-"),
+                "w" to f.width, "h" to f.height, "front" to front, "recFrames" to synchronized(recLock) { rec.size }, "recording" to recording, "state" to (if (!continuous) "-" else if (tracker.inSegment) "isaret" else "bekliyor"), "delegate" to (pipeline?.delegate ?: "-"),
                 "convMs" to convSum.toDouble() / frames, "handMs" to handSum.toDouble() / frames, "poseMs" to poseSum.toDouble() / frames,
             )
             ContextCompat.getMainExecutor(context).execute { events()?.success(msg) }
