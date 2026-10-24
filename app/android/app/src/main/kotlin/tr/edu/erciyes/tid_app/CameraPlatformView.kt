@@ -14,6 +14,7 @@ import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.StandardMessageCodec
 import io.flutter.plugin.platform.PlatformView
 import io.flutter.plugin.platform.PlatformViewFactory
+import io.flutter.plugin.common.MethodChannel
 import java.util.concurrent.Executors
 
 class CameraViewFactory(
@@ -37,6 +38,11 @@ class CameraPlatformView(
     private val overlay = LandmarkOverlay(context)
     private val executor = Executors.newSingleThreadExecutor()
     @Volatile private var wantMode = 1
+    private val recLock = Any()
+    @Volatile private var recording = false
+    private val rec = ArrayList<SignClassifier.Sample>()
+    private var classifier: SignClassifier? = null
+    private val classifyExec = Executors.newSingleThreadExecutor()
     private var pipeline: LandmarkPipeline? = null
     private var provider: ProcessCameraProvider? = null
     private var front = false
@@ -68,6 +74,9 @@ class CameraPlatformView(
                         pl = LandmarkPipeline(context, wantMode).also { pipeline = it }
                     }
                     val f = pl.process(img)
+                    if (recording) synchronized(recLock) {
+                        rec.add(SignClassifier.Sample(f.hands.toTypedArray(), f.pose, f.width, f.height))
+                    }
                     overlay.update(f.hands, f.pose, f.width, f.height)
                     report(f)
                 } finally {
@@ -85,6 +94,37 @@ class CameraPlatformView(
     }
 
     fun setMode(m: Int) { wantMode = m }
+
+    /** Kaydi baslat / bitir; bitirince kare dizisini siniflandirip ilk 3 tahmini dondurur. */
+    fun record(start: Boolean, result: MethodChannel.Result) {
+        if (start) {
+            synchronized(recLock) { rec.clear() }
+            recording = true
+            result.success(null)
+            return
+        }
+        recording = false
+        val frames = synchronized(recLock) { ArrayList(rec) }
+        if (frames.size < 8) {
+            result.success(mapOf("error" to "Cok az kare (${frames.size}); isareti kamerada biraz daha uzun yapin."))
+            return
+        }
+        classifyExec.execute {
+            val reply: Map<String, Any> = try {
+                val c = classifier ?: SignClassifier(context).also { classifier = it }
+                val t0 = System.nanoTime()
+                val top = c.classify(frames)
+                mapOf(
+                    "frames" to frames.size,
+                    "ms" to (System.nanoTime() - t0) / 1_000_000,
+                    "top" to top.map { mapOf("name" to it.name, "p" to it.prob.toDouble()) },
+                )
+            } catch (e: Exception) {
+                mapOf("error" to "Siniflandirma hatasi: ${e.message}")
+            }
+            ContextCompat.getMainExecutor(context).execute { result.success(reply) }
+        }
+    }
 
     private fun bind() {
         val p = provider ?: return
@@ -104,7 +144,7 @@ class CameraPlatformView(
                 "hands" to f.hands.count { it != null }, "pose" to (f.pose != null),
                 // MediaPipe'in ham etiketi (slot 0 = Left, slot 1 = Right); gercek elle karsilastirmak icin
                 "sides" to f.hands.withIndex().filter { it.value != null }.joinToString("+") { if (it.index == 0) "Left" else "Right" },
-                "w" to f.width, "h" to f.height, "front" to front, "delegate" to (pipeline?.delegate ?: "-"),
+                "w" to f.width, "h" to f.height, "front" to front, "recFrames" to synchronized(recLock) { rec.size }, "recording" to recording, "delegate" to (pipeline?.delegate ?: "-"),
                 "convMs" to convSum.toDouble() / frames, "handMs" to handSum.toDouble() / frames, "poseMs" to poseSum.toDouble() / frames,
             )
             ContextCompat.getMainExecutor(context).execute { events()?.success(msg) }
@@ -117,6 +157,8 @@ class CameraPlatformView(
     override fun dispose() {
         provider?.unbindAll()
         executor.execute { pipeline?.close() }
+        classifyExec.execute { classifier?.close() }
+        classifyExec.shutdown()
         executor.shutdown() // kuyruktaki close() calisir
         onDisposed(null)
     }

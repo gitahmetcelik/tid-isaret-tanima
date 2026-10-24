@@ -176,6 +176,10 @@ def main():
         print(f"ep {ep:02d} loss {tot / len(data['train'][1]):.3f} val {va:.3f}", flush=True)
 
     model.load_state_dict(best_state)
+    ck = ROOT / "checkpoints"
+    ck.mkdir(exist_ok=True)
+    torch.save(dict(state=best_state, hidden=a.hidden, n_classes=len(classes), classes=classes, t_fixed=T_FIXED),
+               ck / f"{a.name}.pt")
     test = evaluate(model, *data["test"], dev)
     print(f"EN IYI val {best:.3f} | TEST {test:.3f} | sure {time.time() - t0:.0f}s")
     out = ROOT / "experiments"

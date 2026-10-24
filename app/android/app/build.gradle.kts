@@ -9,6 +9,10 @@ android {
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
+    androidResources {
+        noCompress += listOf("tflite")  // openFd + bellege esleme icin sikistirilmamali
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -43,6 +47,7 @@ kotlin {
 dependencies {
     // Python tarafindaki mediapipe 1.1.1 ile ayni surum (egitim-telefon paritesi, PLAN.md P-01)
     implementation("com.google.mediapipe:tasks-vision:1.1.1")
+    implementation("com.google.ai.edge.litert:litert:1.4.2")
     val camerax = "1.6.2"
     implementation("androidx.camera:camera-core:$camerax")
     implementation("androidx.camera:camera-camera2:$camerax")

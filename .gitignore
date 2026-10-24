@@ -27,3 +27,4 @@ ml/models/*.task
 
 # Android'e gomulen MediaPipe modelleri (ml/README.md'deki komutla indirilip kopyalanir)
 app/android/app/src/main/assets/*.task
+app/android/app/src/main/assets/selftest.bin
