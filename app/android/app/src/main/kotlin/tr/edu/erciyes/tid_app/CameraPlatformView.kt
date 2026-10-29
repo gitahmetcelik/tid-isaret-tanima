@@ -108,6 +108,7 @@ class CameraPlatformView(
                 val c = classifier ?: SignClassifier(context).also { classifier = it }
                 val t0 = System.nanoTime()
                 val top = c.classify(frames)
+                android.util.Log.i("TIDSEG", "tahmin: " + top.joinToString(" | ") { "${it.name} %${(it.prob * 100).toInt()}" } + " (kare=${frames.size})")
                 val seg = mapOf(
                     "frames" to frames.size,
                     "ms" to (System.nanoTime() - t0) / 1_000_000,

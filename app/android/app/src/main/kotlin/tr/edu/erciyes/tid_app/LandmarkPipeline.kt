@@ -90,10 +90,15 @@ class LandmarkPipeline(private val context: Context, val mode: Int) {
     fun process(image: ImageProxy): Frame {
         val t0 = System.nanoTime()
         val upright = toUpright(image)
+        return processBitmap(upright, image.imageInfo.timestamp / 1_000_000L, t0)
+    }
+
+    /** Dik duran bir kareyi isler (kamera ve video dosyasi testi ayni yolu kullanir). */
+    fun processBitmap(upright: Bitmap, tsMs: Long, t0: Long = System.nanoTime()): Frame {
         val mpImage: MPImage = BitmapImageBuilder(upright).build()
         val tConv = System.nanoTime()
 
-        var ts = image.imageInfo.timestamp / 1_000_000L
+        var ts = tsMs
         if (ts <= lastTs) ts = lastTs + 1
         lastTs = ts
 

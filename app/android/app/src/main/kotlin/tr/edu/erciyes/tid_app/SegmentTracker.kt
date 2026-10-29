@@ -1,5 +1,6 @@
 package tr.edu.erciyes.tid_app
 
+import android.util.Log
 import kotlin.math.hypot
 
 /**
@@ -37,12 +38,13 @@ class SegmentTracker(private val onSegment: (List<SignClassifier.Sample>) -> Uni
             if (active) lastActiveNs = nowNs
             val idleMs = (nowNs - lastActiveNs) / 1_000_000
             val lenS = (nowNs - segStartNs) / 1e9
-            if (idleMs >= END_GAP_MS || lenS >= MAX_SECONDS) finish()
+            if (idleMs >= END_GAP_MS || lenS >= MAX_SECONDS) finish(if (idleMs >= END_GAP_MS) "bosluk" else "max-sure")
         }
     }
 
-    private fun finish() {
+    private fun finish(reason: String) {
         val done = ArrayList(seg)
+        Log.i("TIDSEG", "segment kapandi: kare=${done.size} sebep=$reason ${if (done.size >= MIN_FRAMES) "-> siniflandiriliyor" else "-> cok kisa, atildi"}")
         reset()
         if (done.size >= MIN_FRAMES) onSegment(done)
     }

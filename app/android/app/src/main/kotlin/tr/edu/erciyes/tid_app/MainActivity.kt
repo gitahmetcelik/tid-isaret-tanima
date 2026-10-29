@@ -50,6 +50,8 @@ class MainActivity : FlutterActivity() {
             } else result.notImplemented()
         }
 
+        // adb ile: am start ... --es videotest <mod> -> sonuc logcat'te (etiket TIDVTEST)
+        intent.getStringExtra("videotest")?.let { runVideoTest(it.toIntOrNull() ?: 1) }
         // adb ile: am start ... --ez selftest true  -> sonuc logcat'te (etiket TIDSELFTEST)
         if (intent.getBooleanExtra("selftest", false)) runSelfTest { }
 
@@ -86,6 +88,42 @@ class MainActivity : FlutterActivity() {
             } catch (e: Exception) { mapOf("error" to (e.message ?: e.toString())) }
             Log.i("TIDSELFTEST", reply.toString())
             runOnUiThread { done(reply) }
+        }.start()
+    }
+
+    /**
+     * Video dosyasini kamerasiz, telefondaki MediaPipe + Kotlin on isleme + LiteRT zincirinden gecirir.
+     * Dosyalar: /sdcard/Android/data/<paket>/files/vtest/<ad>__<sinif no>.mp4 (adb push ile).
+     * Python cikarimi + ayni model sonucuyla karsilastirmak icin: ayni kliplerin Python tahmini ayri hesaplanir.
+     */
+    private fun runVideoTest(mode: Int) {
+        Thread {
+            try {
+                val dir = java.io.File(getExternalFilesDir(null), "vtest")
+                val files = dir.listFiles { f -> f.name.endsWith(".mp4") }?.sortedBy { it.name } ?: emptyList()
+                Log.i("TIDVTEST", "mod=$mode, ${files.size} video")
+                val clf = SignClassifier(this)
+                var correct = 0; var n = 0
+                for (f in files) {
+                    val label = f.name.substringAfter("__").substringBefore(".").toInt()
+                    val r = android.media.MediaMetadataRetriever().apply { setDataSource(f.absolutePath) }
+                    val count = r.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_FRAME_COUNT)!!.toInt()
+                    val pl2 = LandmarkPipeline(this, mode)  // her video icin yeni izleme durumu (Python ile ayni)
+                    val frames = ArrayList<SignClassifier.Sample>(count)
+                    for (i in 0 until count) {
+                        val bmp = r.getFrameAtIndex(i) ?: continue
+                        val fr = pl2.processBitmap(bmp.copy(android.graphics.Bitmap.Config.ARGB_8888, false), i * 1000L / 30)
+                        frames.add(SignClassifier.Sample(fr.hands.toTypedArray(), fr.pose, fr.width, fr.height))
+                    }
+                    Log.i("TIDVTEST", "delegate=${pl2.delegate}"); pl2.close(); r.release()
+                    val top = clf.classify(frames, 3)
+                    n++; if (top[0].index == label) correct++
+                    Log.i("TIDVTEST", "${f.name}: kare=${frames.size} el_var=${frames.count { s -> s.hands.any { it != null } }} " +
+                        "tahmin=${top.joinToString(" | ") { "${it.name} %${(it.prob * 100).toInt()}" }} dogru=${top[0].index == label}")
+                }
+                clf.close()
+                Log.i("TIDVTEST", "BITTI mod=$mode dogruluk=$correct/$n")
+            } catch (e: Exception) { Log.e("TIDVTEST", "hata: $e") }
         }.start()
     }
 

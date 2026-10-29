@@ -2,6 +2,7 @@
 
 
 > Kaynak: `TID_Tez_Onerisi.pdf` (Eylül 2026). Bu plan PDF'in yerine geçmez; PDF'in hafta numaralarını (Hf1 = 28 Eylül) korur ve hedefleri **5 Ekim başlangıcına** göre yeniden dağıtır.
+> **Güncel durum ve devir notu: [docs/DURUM.md](docs/DURUM.md).**
 > Durum: **TASLAK v0.2** (23 Ekim 2026). `[?]` ile işaretli yerler ekip kararı bekliyor.
 > Donanım: Mustafa KÜPEL'in makinesinde **RTX 5000 serisi (Blackwell)** GPU var; ana eğitim makinesi olarak o öneriliyor `[?]`. Diğer üyelerin donanımı `[?]`.
 
