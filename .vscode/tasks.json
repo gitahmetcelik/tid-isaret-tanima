@@ -11,6 +11,13 @@
       "problemMatcher": []
     },
     {
+      "label": "Sunum: PDF derle (derle.sh)",
+      "type": "shell",
+      "command": "./derle.sh",
+      "options": { "cwd": "${workspaceFolder}/docs/vize/sunum" },
+      "problemMatcher": []
+    },
+    {
       "label": "Ortam: PyTorch ve cihaz kontrolü",
       "type": "shell",
       "command": "ml/.venv/bin/python -c \"import torch; print('torch', torch.__version__, '| cuda', torch.cuda.is_available(), '| mps', torch.backends.mps.is_available())\"",

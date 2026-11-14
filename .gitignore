@@ -39,6 +39,12 @@ docs/vize/rapor-latex/*.blg
 docs/vize/rapor-latex/*.log
 docs/vize/rapor-latex/*.toc
 docs/vize/rapor-latex/*.out
+docs/vize/sunum/*.aux
+docs/vize/sunum/*.log
+docs/vize/sunum/*.nav
+docs/vize/sunum/*.out
+docs/vize/sunum/*.snm
+docs/vize/sunum/*.toc
 docs/vize/rapor-latex/grafik/*-eps-converted-to.pdf
 
 # buyuk arsiv ve derlenmis uygulama
