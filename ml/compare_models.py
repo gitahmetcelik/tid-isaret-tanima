@@ -27,10 +27,21 @@ def run_one(model, seed, a):
     cmd = [sys.executable, str(HERE / "train_gru.py"), "--model", model, "--seed", str(seed),
            "--epochs", str(a.epochs), "--classes", a.classes, "--name", name,
            "--kp", a.kp, "--data", a.data, "--batch", str(a.batch), "--lr", str(a.lr)]
+    # Ayni kosu daha once bittiyse tekrar egitme: uzun kosu yarida kesilirse kaldigi yerden
+    # devam edilebilsin, eski tohumlar da ozete girsin. --force ile yeniden kosulur.
+    for old in sorted(EXPERIMENTS.glob(f"*_{name}.json"), reverse=True):
+        r = json.loads(old.read_text(encoding="utf-8"))
+        # error_<ad>.json da ayni kaliba uyuyor; "epochs" alani olmayan dosya egitim kaydi degildir.
+        if not a.force and (r.get("epochs"), r.get("seed"), r.get("lr")) == (a.epochs, seed, a.lr):
+            print(f"\n=== {model} | seed {seed} | hazir: {old.name} ===", flush=True)
+            r["wall_s"] = r["duration_s"]
+            r["file"] = old.name
+            return r
     print(f"\n=== {model} | seed {seed} | {a.epochs} epoch ===", flush=True)
     t0 = time.time()
     subprocess.run(cmd, check=True)
-    out = EXPERIMENTS / f"{time.strftime('%Y%m%d')}_{name}.json"
+    # Dosya adindaki tarih kosunun bittigi gun; gece yarisini gecen kosuda bugunle tutmayabilir.
+    out = max(EXPERIMENTS.glob(f"2*_{name}.json"), key=lambda p: p.stat().st_mtime)
     r = json.loads(out.read_text(encoding="utf-8"))
     r["wall_s"] = round(time.time() - t0)
     r["file"] = out.name
@@ -47,6 +58,7 @@ def main():
     ap.add_argument("--lr", type=float, default=2e-3)
     ap.add_argument("--kp", default=str(ROOT / "data" / "keypoints"))
     ap.add_argument("--data", default=str(ROOT / "data" / "archive (1)"))
+    ap.add_argument("--force", action="store_true", help="bitmis kosulari da yeniden egit")
     a = ap.parse_args()
 
     models = [m.strip() for m in a.models.split(",")]
