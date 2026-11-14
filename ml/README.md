@@ -1,5 +1,19 @@
 # ml/: nokta çıkarımı ve model eğitimi
 
+## Dosyalar
+
+| Dosya | İş |
+|---|---|
+| `extract_keypoints.py` | videodan MediaPipe ile el + gövde noktaları (`.npz`) |
+| `features.py` | normalizasyon, 64 kareye örnekleme, artırma, batch |
+| `models.py` | `GRUNet`, `CNNTransformerNet`, kayıtlı ağırlığı yükleme |
+| `train_gru.py` | eğitim döngüsü (`--model gru` ya da `cnn_transformer`) |
+| `compare_models.py` | model × tohum koşuları, özet tablo |
+| `error_analysis.py` | sınıf bazlı F1, karışıklık matrisi, eğitim eğrisi |
+| `demo.py` | hazır ağırlıkla örnek tahminler ve test doğruluğu |
+| `calibrate_threshold.py`, `tune_segmentation.py` | güven eşiği ve segment kuralları |
+| `export_weights.py`, `convert_tflite.py`, `export_selftest.py` | LiteRT dönüşümü ve telefon öz-testi |
+
 ## Ortam (Python 3.12)
 
 ```bash

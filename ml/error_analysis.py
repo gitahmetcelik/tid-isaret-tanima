@@ -10,7 +10,6 @@ Ornek:
     python ml/error_analysis.py --name gru_all_s0
 """
 import argparse
-import csv
 import json
 from pathlib import Path
 
@@ -20,20 +19,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-from train_gru import CNNTransformerNet, GRUNet, ROOT, batches, load_split
+from features import ROOT, batches, load_sign_names, load_split
+from models import load_checkpoint, pick_device
 
 HERE = Path(__file__).resolve().parent
 EXPERIMENTS = ROOT / "experiments"
-
-
-def load_sign_names(csv_path):
-    names = {}
-    if not Path(csv_path).exists():
-        return names
-    with open(csv_path, encoding="utf-8") as f:
-        for row in csv.DictReader(f):
-            names[int(row["ClassId"])] = row["TR"]
-    return names
 
 
 @torch.no_grad()
@@ -149,24 +139,12 @@ def main():
     ap.add_argument("--curves", default="", help="egri grafigi icin virgullu experiments/*.json listesi")
     a = ap.parse_args()
 
-    ck_path = ROOT / "checkpoints" / f"{a.name}.pt"
-    ck = torch.load(ck_path, map_location="cpu")
+    model, ck = load_checkpoint(a.name)
     classes = ck["classes"]
     label_map = {c: i for i, c in enumerate(classes)}
     sign_names = load_sign_names(a.signs)
 
-    if torch.cuda.is_available():
-        dev = torch.device("cuda")
-    elif torch.backends.mps.is_available():
-        dev = torch.device("mps")
-    else:
-        dev = torch.device("cpu")
-
-    if ck.get("model_type") == "cnn_transformer":
-        model = CNNTransformerNet(ck["n_classes"])
-    else:
-        model = GRUNet(ck["n_classes"], hidden=ck["hidden"])
-    model.load_state_dict(ck["state"])
+    dev = pick_device()
     model = model.to(dev)
 
     X, y = load_split(a.kp, a.split, label_map, Path(a.data) / f"{a.split}_labels.csv")
