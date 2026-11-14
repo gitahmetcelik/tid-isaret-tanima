@@ -1,5 +1,6 @@
 #!/bin/sh
-# Sunumu derler: sunum.tex -> sunum.pdf (sayfa numaralari icin iki kez calisiyor)
+# Iki sunumu derler: ekip-sunumu.tex (ekibin tamami) ve sunum.tex (yalnizca model kismi).
+# Sayfa numaralari icin her biri iki kez calisiyor.
 set -e
 cd "$(dirname "$0")"
 
@@ -8,7 +9,9 @@ if ! command -v pdflatex >/dev/null 2>&1; then
     for d in "$HOME"/Library/TinyTeX/bin/*; do PATH="$d:$PATH"; done
 fi
 
-pdflatex -interaction=nonstopmode sunum.tex
-pdflatex -interaction=nonstopmode sunum.tex
+for f in ekip-sunumu sunum; do
+    pdflatex -interaction=nonstopmode "$f.tex"
+    pdflatex -interaction=nonstopmode "$f.tex"
+done
 
-echo "bitti: sunum.pdf"
+echo "bitti: ekip-sunumu.pdf, sunum.pdf"
