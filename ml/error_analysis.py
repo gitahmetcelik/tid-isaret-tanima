@@ -99,14 +99,21 @@ def plot_curves(exp_files, out_path):
     return True
 
 
-def plot_top_confusion(cm, classes, sign_names, out_path, top_k=20):
-    # Hataya en cok karisan top_k sinifin alt-matrisi (226x226 kagitta okunmuyor)
+def plot_top_confusion(cm, classes, sign_names, out_path, top_k=18):
+    # En cok karisan ciftlerden baslayarak top_k sinif secilir; boylece karisan
+    # ciftin iki ucu da alt-matriste yer alir (226x226 kagitta okunmuyor)
     off = cm.copy()
     np.fill_diagonal(off, 0)
-    err_per_cls = off.sum(axis=1) + off.sum(axis=0)
-    k = min(top_k, len(classes))
-    idx = np.argsort(err_per_cls)[::-1][:k]
-    idx = np.sort(idx)
+    chosen = []
+    for fi in np.argsort(off.ravel())[::-1]:
+        i, j = divmod(int(fi), len(classes))
+        if off[i, j] == 0 or len(chosen) >= top_k:
+            break
+        for c in (i, j):
+            if c not in chosen and len(chosen) < top_k:
+                chosen.append(c)
+    idx = np.sort(np.array(chosen, dtype=int))
+    k = len(idx)
     sub = cm[np.ix_(idx, idx)]
     labels = [f"{sign_names.get(classes[i], str(classes[i]))}" for i in idx]
 
@@ -114,11 +121,18 @@ def plot_top_confusion(cm, classes, sign_names, out_path, top_k=20):
     im = ax.imshow(sub, cmap="Blues")
     ax.set_xticks(range(k))
     ax.set_yticks(range(k))
-    ax.set_xticklabels(labels, rotation=45, ha="right", fontsize=8)
-    ax.set_yticklabels(labels, fontsize=8)
+    ax.set_xticklabels(labels, rotation=45, ha="right", fontsize=8.5)
+    ax.set_yticklabels(labels, fontsize=8.5)
     ax.set_xlabel("Tahmin Edilen İşaret")
     ax.set_ylabel("Gerçek İşaret")
     ax.set_title(f"En Çok Karışan {k} Sınıf İçin Karışıklık Matrisi")
+    thresh = sub.max() / 2.0 if sub.size else 1
+    for r in range(k):
+        for c in range(k):
+            v = int(sub[r, c])
+            if v > 0:
+                ax.text(c, r, str(v), ha="center", va="center", fontsize=7.5,
+                        color="white" if v > thresh else "#1f2937")
     fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
     fig.tight_layout()
     fig.savefig(out_path, dpi=180)
