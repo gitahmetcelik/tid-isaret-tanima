@@ -79,7 +79,7 @@ adımı dizi uzunluğunu $T=64$'ten $32$'ye indirerek sonraki dikkat (attention)
 hesabının maliyetini yarıya düşürmektedir. Sinüzoidal konum kodlamasının ardından
 gelen 2 katmanlı Transformer kodlayıcısı ($d_{\text{model}}=256$, 4 kafa,
 ileri-besleme boyutu 512, GELU) uzun menzilli zaman ilişkilerini öğrenmektedir.
-Bu model toplam 1.467.618 parametreye sahiptir (BiGRU'dan yaklaşık yüzde 30 daha
+Bu model toplam 1.473.634 parametreye sahiptir (BiGRU'dan yaklaşık yüzde 30 daha
 küçük) ve tekrarlayan katman içermediği için GPU/MPS üzerinde çok daha hızlı
 eğitilebilmektedir.
 
@@ -119,8 +119,8 @@ gösterilmiştir.
 \toprule
 \textbf{Model} & \textbf{Parametre} & \textbf{Val (\%)} & \textbf{Test (\%)} & \textbf{F1 (\%)} & \textbf{Süre (dk)} \\
 \midrule
-BiGRU-2x256 & 2.114.018 & 89,25 & 88,24 & 88,09 & 77,6 \\
-1B-CNN + Transformer & 1.467.618 & \textbf{90,02} & \textbf{88,83} & \textbf{88,61} & \textbf{18,1} \\
+BiGRU-2x256 & 2.114.018 & 89,23 & 88,24 & 88,09 & 77,6 \\
+1B-CNN + Transformer & 1.473.634 & \textbf{89,97} & \textbf{88,83} & \textbf{88,61} & \textbf{18,1} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -134,7 +134,7 @@ BiGRU-2x256 & 2.114.018 & 89,25 & 88,24 & 88,09 & 77,6 \\
 
 Şekil~\ref{fig:egri} incelendiğinde BiGRU modelinin ilk 15 epoch'ta daha hızlı
 yükseldiği, ancak 30. epoch sonrasında 1B-CNN + Transformer modelinin öne geçerek
-yüzde 90,02 doğrulama ve yüzde 88,83 test doğruluğuna ulaştığı görülmektedir.
+yüzde 89,97 doğrulama ve yüzde 88,83 test doğruluğuna ulaştığı görülmektedir.
 Ayrıca önceki GPU koşusunda elde edilen BiGRU ağırlıkları da yüzde 89,9 doğrulama
 ve yüzde 88,0 test doğruluğu ile aynı bandı teyit etmektedir.
 

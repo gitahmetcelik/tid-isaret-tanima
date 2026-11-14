@@ -19,8 +19,8 @@ genişliğine bölünmüş, değişken uzunluktaki diziler 64 kareye örneklenmi
 Sınıflandırma aşamasında PyTorch ile iki katmanlı, iki yönlü bir GRU (BiGRU)
 temel modeli ve karşılaştırma amacıyla üç katmanlı 1B-CNN + iki katmanlı
 Transformer modeli kurulmuştur. Aynı veri ve artırma düzeninde 60 epoch sonunda
-BiGRU modeli test kümesinde yüzde 88,24 (doğrulama yüzde 89,25), daha hafif olan
-1B-CNN + Transformer modeli ise yüzde 88,83 (doğrulama yüzde 90,02) Top-1
+BiGRU modeli test kümesinde yüzde 88,24 (doğrulama yüzde 89,23), daha hafif olan
+1B-CNN + Transformer modeli ise yüzde 88,83 (doğrulama yüzde 89,97) Top-1
 doğruluğa ulaşarak tez önerisindeki yüzde 85 hedefini aşmıştır. Temel modelin
 LiteRT int8 sürümü 3,19 MB boyutundadır ve aynı 200 test örneği Python ile
 telefon üzerinde çalıştırıldığında tahminlerin yüzde 99,5'i birbiriyle aynı
