@@ -1,0 +1,29 @@
+{
+  // Mac/Linux yolu. Windows'ta: ${workspaceFolder}/ml/.venv/Scripts/python.exe
+  "python.defaultInterpreterPath": "${workspaceFolder}/ml/.venv/bin/python",
+  "python.analysis.extraPaths": ["ml"],
+  "python.terminal.activateEnvironment": true,
+
+  "dart.projectSearchDepth": 2,
+
+  "latex-workshop.latex.outDir": "%DIR%",
+  "latex-workshop.latex.recipe.default": "pdflatex -> bibtex -> pdflatex * 2",
+
+  "files.exclude": {
+    "**/.DS_Store": true,
+    "**/__pycache__": true
+  },
+  "search.exclude": {
+    "data": true,
+    "checkpoints": true,
+    "ml/.venv": true,
+    "app/build": true,
+    "flutter": true
+  },
+  "files.watcherExclude": {
+    "data/**": true,
+    "checkpoints/**": true,
+    "ml/.venv/**": true,
+    "flutter/**": true
+  }
+}

@@ -23,3 +23,21 @@
 
 **Sırada**
 - Ek tohumlarla (`seed 1,2`) standart sapma aralığının çıkarılması ve ara rapor / sunum tablolarının güncellenmesi.
+
+## 14 Kasım 2026 (Hafta 7)
+
+**Ne yaptım?**
+- `ml/train_gru.py` üç dosyaya bölündü: veri hazırlığı `features.py`, mimariler `models.py`, eğitim döngüsü
+  `train_gru.py`. Model yükleme kodu beş betikte tekrar ediyordu, `models.load_checkpoint` altında toplandı.
+  Bölmeden önce ve sonra 10 sınıflık deneme ile test doğrulukları aynı çıktı (%88,83 / %88,24 / %88,00).
+- `ml/demo.py`: hazır ağırlıkla test kümesinden örnek tahminleri ve toplam doğruluğu yazıyor.
+- `ml/compare_models.py` bitmiş koşuyu yeniden eğitmiyor; yarıda kesilen karşılaştırma kaldığı yerden sürüyor.
+- Mac kurulumu: TinyTeX ile rapor derlemesi, Android SDK, Flutter 3.44.8 ile `app-profile.apk` derlendi ve
+  Redmi Pad Pro'ya yüklendi. `.vscode/` altına hazır çalıştırma yapılandırmaları eklendi.
+
+**Ölçülen**
+- `1D-CNN+Transformer` tohum 1: val %90,6 | test %89,8. Tohum 2: val %90,6 | test %89,7. BiGRU tohum 1-2 koşuyor.
+- Tablette canlı kamerada top-1 güven %5-9 (DURUM.md'deki bilinen sorunla aynı).
+
+**Sırada**
+- BiGRU tohum 1-2 bitince 3 tohumluk tablo; rapordaki doğrulama ve parametre sayılarının JSON ile eşitlenmesi.

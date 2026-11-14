@@ -1,0 +1,35 @@
+{
+  // Terminal > Gorevi Calistir (Run Task) menusunden secilir.
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Rapor: PDF derle (derle.sh)",
+      "type": "shell",
+      "command": "./derle.sh",
+      "options": { "cwd": "${workspaceFolder}/docs/vize/rapor-latex" },
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Ortam: PyTorch ve cihaz kontrolü",
+      "type": "shell",
+      "command": "ml/.venv/bin/python -c \"import torch; print('torch', torch.__version__, '| cuda', torch.cuda.is_available(), '| mps', torch.backends.mps.is_available())\"",
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Ortam: Python paketlerini kur (ml/.venv)",
+      "type": "shell",
+      "command": "python3 -m venv ml/.venv && ml/.venv/bin/python -m pip install torch numpy matplotlib scikit-learn mediapipe opencv-python pandas tqdm",
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Uygulama: flutter doctor",
+      "type": "shell",
+      "command": "flutter/bin/flutter doctor",
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    }
+  ]
+}

@@ -1,0 +1,192 @@
+// Vize surumu. Calistir ve Hata Ayikla (Cmd+Shift+D) menusunden secilir, F5 ile baslar.
+// 1-8 ara rapordaki sirayla gider ve hazir agirliklari kullanir (checkpoints/*.pt).
+// "Ek" ile baslayanlar uzun surer ya da vize kapsami disindadir.
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "1. Demo: örnek tahminler + test doğruluğu (1B-CNN+Transformer)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/ml/demo.py",
+      "args": [
+        "--name",
+        "cnn_transformer_all_s0"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "2. Demo: örnek tahminler + test doğruluğu (BiGRU)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/ml/demo.py",
+      "args": [
+        "--name",
+        "gru_all_s0"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "3. Eğitim: canlı deneme, 10 sınıf 5 epoch (1B-CNN+Transformer)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/ml/train_gru.py",
+      "args": [
+        "--model",
+        "cnn_transformer",
+        "--classes",
+        "30,175,65,86,196,211,83,52,14,20",
+        "--epochs",
+        "5",
+        "--name",
+        "demo_cnn_transformer"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "4. Eğitim: canlı deneme, 10 sınıf 5 epoch (BiGRU)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/ml/train_gru.py",
+      "args": [
+        "--model",
+        "gru",
+        "--classes",
+        "30,175,65,86,196,211,83,52,14,20",
+        "--epochs",
+        "5",
+        "--name",
+        "demo_gru"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "5. Karşılaştırma tablosu (rapor Tablo 2, seed 0)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/ml/compare_models.py",
+      "args": [
+        "--seeds",
+        "0",
+        "--epochs",
+        "60"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "6. Hata analizi: F1 + karışıklık matrisi (1B-CNN+Transformer)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/ml/error_analysis.py",
+      "args": [
+        "--name",
+        "cnn_transformer_all_s0"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "7. Hata analizi: F1 + karışıklık matrisi (BiGRU)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/ml/error_analysis.py",
+      "args": [
+        "--name",
+        "gru_all_s0"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "8. Güven eşiği kalibrasyonu (BiGRU, mobil ağırlık)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/ml/calibrate_threshold.py",
+      "args": [
+        "--name",
+        "gru226"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "Ek: 226 sınıf tam eğitim, 60 epoch (1B-CNN+Transformer, ~18 dk)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/ml/train_gru.py",
+      "args": [
+        "--model",
+        "cnn_transformer",
+        "--epochs",
+        "60",
+        "--seed",
+        "0",
+        "--name",
+        "cnn_transformer_all_s0"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "Ek: 3 tohum karşılaştırması (M3; bitmiş koşular atlanır)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/ml/compare_models.py",
+      "args": [
+        "--seeds",
+        "0,1,2",
+        "--epochs",
+        "60"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "Ek: segmentleme simülasyonu (BiGRU, 500 klip)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/ml/tune_segmentation.py",
+      "args": [
+        "--name",
+        "gru_all_s0",
+        "--limit",
+        "500"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "Python: açık dosyayı çalıştır",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${file}",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "Uygulama: Flutter (bağlı Android telefon)",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/app",
+      "program": "lib/main.dart",
+      "flutterMode": "profile"
+    }
+  ]
+}
