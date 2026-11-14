@@ -36,8 +36,19 @@
 \titlepage
 \end{frame}
 
-% 1
+\begin{frame}{Projeyi bir slaytta anlatırsak}
+\framesubtitle{1. Özet}
+\begin{itemize}
+\item Telefon kamerasından alınan TİD işaretini tanıyıp yazıya çeviren bir sistem geliştiriyoruz.
+\item Video yerine telefonda çıkarılan iskelet koordinatlarıyla çalışıyoruz; internet gerekmiyor, görüntü cihazdan çıkmıyor.
+\item AUTSL veri setinde 226 işaret için iki model eğittik: test doğruluğu yüzde 88,24 ve yüzde 88,83. Hedef yüzde 85'ti.
+\item Telefondaki model 3,19 MB; Python ile telefon tahminleri yüzde 99,5 aynı.
+\item Açık kalan iki konu: uçtan uca hız 9 FPS (hedef 15) ve canlı kamerada düşen tahmin güveni.
+\end{itemize}
+\end{frame}
+
 \begin{frame}{Neyi çözmek istiyoruz?}
+\framesubtitle{2. Motivasyon}
 \begin{itemize}
 \item İşaret dili bilmeyen biriyle iletişim çoğu zaman yazıya ya da bir yakının tercümanlığına kalıyor.
 \item Hastane, banka, resmî daire gibi yerlerde bu hem zaman kaybı hem mahremiyet sorunu.
@@ -53,8 +64,44 @@
 \end{itemize}
 \end{frame}
 
-% 2
+\begin{frame}{Önce birlikte araştırdık}
+\framesubtitle{3. Projenin içerdiği yenilik unsuru}
+\begin{itemize}
+\item Literatürdeki çalışmaların çoğu yabancı işaret dilleri (ASL, BSL) üzerine.
+\item Çoğu çözüm sunucuda çalışan büyük modeller kullanıyor: internet gerekiyor, görüntü cihazdan çıkıyor.
+\item Eldiven ya da derinlik kamerası isteyen çözümler var; maliyetli ve günlük kullanıma uygun değil.
+\item TİD için açık ve büyük veri seti olarak AUTSL'yi bulduk: 226 işaret, 43 işaretçi, resmî bölmeleri hazır.
+\end{itemize}
+
+\vspace{3mm}
+Bu araştırma bize boşluğun nerede olduğunu gösterdi: TİD'i telefonda, çevrimdışı tanıyan hafif bir sistem.
+\end{frame}
+
+\begin{frame}{Sonra kararlarımızı verdik}
+\framesubtitle{3. Projenin içerdiği yenilik unsuru}
+\begin{columns}[T]
+\begin{column}{0.56\textwidth}
+\textbf{Tasarım kararları}
+\begin{itemize}
+\item Girdi video karesi değil, iskelet koordinatları olacak
+\item Nokta çıkarımı eğitimde de telefonda da aynı MediaPipe API'siyle yapılacak
+\item Sistem tamamen çevrimdışı çalışacak, model uygulamanın içinde taşınacak
+\item Kapsam kelime düzeyi; cümle çevirisi gelecek çalışma
+\end{itemize}
+\end{column}
+\begin{column}{0.4\textwidth}
+\textbf{Koyduğumuz hedefler}
+\begin{itemize}
+\item Test doğruluğu en az yüzde 85
+\item Model boyutu 10 MB'ın altında
+\item Uçtan uca hız 15 FPS
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
 \begin{frame}{Ekip ve iş bölümü}
+\framesubtitle{Görev dağılımı}
 \centering
 \begin{tabular}{@{}ll@{}}
 \toprule
@@ -74,8 +121,18 @@ Mobil uygulama, arayüz, donanım entegrasyonu & Ahmet Çelik \\
 \end{itemize}
 \end{frame}
 
-% 3
+\begin{frame}{Projeye nasıl başladık?}
+\framesubtitle{4. Yöntem ve metotlar}
+\begin{itemize}
+\item 5 Ekim'de açılış toplantısını yapıp iş bölümünü netleştirdik.
+\item Ortak depoyu ve erişim izinlerini kurduk, AUTSL verisini indirip doğruladık (29 Ekim).
+\item İlk hedefimiz uçtan uca çalışan dar bir dilimdi: veri hazırlığı, nokta çıkarımı, model eğitimi, mobil dönüşüm.
+\item Bu dilim 7 Kasım'da tamamlandı; sonraki slaytlar bu dört adımı sırayla anlatıyor.
+\end{itemize}
+\end{frame}
+
 \begin{frame}{Neleri kullandık?}
+\framesubtitle{4. Yöntem ve metotlar}
 \centering
 \small
 \begin{tabular}{@{}ll@{}}
@@ -94,8 +151,8 @@ Sürüm takibi ve rapor & Git, GitHub, \LaTeX \\
 \end{tabular}
 \end{frame}
 
-% 4
 \begin{frame}{Sistemi nasıl kurduk?}
+\framesubtitle{4. Yöntem ve metotlar}
 \centering
 \footnotesize
 \setlength{\fboxsep}{4pt}
@@ -115,8 +172,8 @@ Sürüm takibi ve rapor & Git, GitHub, \LaTeX \\
 \end{itemize}
 \end{frame}
 
-% 5
 \begin{frame}{Veriyi nasıl hazırladık?}
+\framesubtitle{4. Yöntem ve metotlar}
 \begin{columns}[T]
 \begin{column}{0.48\textwidth}
 \textbf{Veri seti kontrolü}
@@ -139,8 +196,8 @@ Sürüm takibi ve rapor & Git, GitHub, \LaTeX \\
 \end{columns}
 \end{frame}
 
-% 6
 \begin{frame}{Hangi modelleri kurduk?}
+\framesubtitle{4. Yöntem ve metotlar}
 \centering
 \begin{tabular}{@{}lll@{}}
 \toprule
@@ -161,8 +218,8 @@ Parametre & 2.114.018 & 1.473.634 \\
 \end{itemize}
 \end{frame}
 
-% 7
 \begin{frame}{Nasıl eğittik?}
+\framesubtitle{4. Yöntem ve metotlar}
 \begin{columns}[c]
 \begin{column}{0.36\textwidth}
 \small
@@ -181,8 +238,8 @@ Parametre & 2.114.018 & 1.473.634 \\
 \end{columns}
 \end{frame}
 
-% 8
 \begin{frame}{Ne elde ettik?}
+\framesubtitle{4. Yöntem ve metotlar}
 \centering
 \begin{tabular}{@{}lrrrr@{}}
 \toprule
@@ -210,8 +267,8 @@ BiGRU-2x256 & 87,98 $\pm$ 0,23 & 89,38 \\
 \end{itemize}
 \end{frame}
 
-% 9
 \begin{frame}{Model nerede yanılıyor?}
+\framesubtitle{4. Yöntem ve metotlar}
 \begin{columns}[c]
 \begin{column}{0.42\textwidth}
 \includegraphics[width=\textwidth]{karisiklik_matrisi.png}
@@ -239,8 +296,8 @@ ağır & hafif & 6 / 17 \\
 \end{columns}
 \end{frame}
 
-% 10
 \begin{frame}{Modeli telefona nasıl taşıdık?}
+\framesubtitle{4. Yöntem ve metotlar}
 \centering
 \footnotesize
 \setlength{\fboxsep}{4pt}
@@ -259,8 +316,8 @@ ağır & hafif & 6 / 17 \\
 \end{itemize}
 \end{frame}
 
-% 11
 \begin{frame}{Mobil uygulamayı nasıl kurduk?}
+\framesubtitle{4. Yöntem ve metotlar}
 \begin{columns}[T]
 \begin{column}{0.48\textwidth}
 \textbf{Yapı}
@@ -282,8 +339,8 @@ ağır & hafif & 6 / 17 \\
 \end{columns}
 \end{frame}
 
-% 12
 \begin{frame}{Henüz çözemediklerimiz}
+\framesubtitle{4. Yöntem ve metotlar}
 \begin{itemize}
 \item \textbf{Canlı kamerada güven düşük.} Kayıtlı test verisinde yüzde 88--89 alırken canlı denemede tahmin güveni yüzde 3--20 aralığına düşüyor.
 \item Neden henüz ayrışmadı: MediaPipe'ın canlı görüntüdeki nokta kalitesi, ön işleme farkı ya da segmentleme kuralları olabilir.
@@ -296,8 +353,8 @@ ağır & hafif & 6 / 17 \\
 \end{itemize}
 \end{frame}
 
-% 13
-\begin{frame}{Takvim ve sıradaki işler}
+\begin{frame}{Takvimde neredeyiz?}
+\framesubtitle{5. Proje planı}
 \centering
 \small
 \begin{tabular}{@{}lll@{}}
@@ -314,12 +371,30 @@ M6: tez teslimi & 1 Ocak & Planlandı \\
 \bottomrule
 \end{tabular}
 
-\vspace{4mm}
-\normalsize
+\end{frame}
+
+\begin{frame}{Nereye vardık?}
+\framesubtitle{6. Sonuç}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\textbf{Tamamladıklarımız}
 \begin{itemize}
-\item 1B-CNN + Transformer'ı da LiteRT int8'e aktarıp telefonda BiGRU ile karşılaştıracağız.
-\item En az 30 işaret ve farklı kullanıcılarla gönüllü test protokolü hazırlayacağız.
+\item Veri doğrulandı, tüm videolar için noktalar çıkarıldı
+\item İki model de yüzde 85 hedefini geçti (yüzde 88,24 ve 88,83)
+\item int8 model 3,19 MB; 10 MB hedefinin altında
+\item Python ile telefon çıktıları yüzde 99,5 uyumlu
 \end{itemize}
+\end{column}
+\begin{column}{0.48\textwidth}
+\textbf{Sıradaki işler}
+\begin{itemize}
+\item Canlı kamera sorununu nokta bazında karşılaştırmayla ayırmak
+\item 1B-CNN + Transformer'ı LiteRT int8'e aktarıp telefonda BiGRU ile karşılaştırmak
+\item En az 30 işaret ve farklı kullanıcılarla gönüllü testi
+\item Üç ekranlı uygulama ve uçak modu testleri
+\end{itemize}
+\end{column}
+\end{columns}
 \end{frame}
 
 \end{document}
