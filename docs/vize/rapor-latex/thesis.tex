@@ -1,0 +1,51 @@
+\documentclass{erciyes}
+
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{cite}
+
+\renewcommand{\thetable}{\arabic{table}}   % bölüm numarası kullanılmadığı için
+\renewcommand{\thefigure}{\arabic{figure}}
+
+% Türkçe kelimeler uzun olduğu için satırlar taşabiliyor;
+% bu ayar kelimeler arasındaki boşluğu biraz esnetip taşmayı azaltıyor.
+\setlength{\emergencystretch}{3em}
+
+\ToCLineisDotted %% İçindekiler kısmında sayfa numaralarına kadar olan kısım noktalı olsun
+\ToCChapterBold  %% İçindekiler kısmında BÖLÜM 1-2... yazıları bold olsun.
+%\TabloListesiYok %% Tablo Listesi kullanılmayacak
+%\SekilListesiYok %% Şekil Listesi kullanılmayacak
+
+\setlength{\fboxsep}{0pt}
+
+\input{defination.tex}
+
+\renewcommand{\textfraction}{0.10}
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\bottomfraction}{0.95}
+\renewcommand{\floatpagefraction}{0.35}
+
+\setcounter{totalnumber}{5}
+
+\begin{document}
+\input{chapter1.tex} %Özet
+\input{chapter2.tex} %Motivasyon
+\input{chapter3.tex} %Projenin İçerdiği Yenilik Unsuru
+\input{chapter4.tex} %Yöntem ve Metotlar
+\input{chapter5.tex} %Proje Planı
+\input{chapter6.tex} %Sonuç
+
+\nocite{*}
+\bibliographystyle{erciyesbm}
+\bibliography{referanslar}
+%\appendix
+%\input{ek2.tex}
+
+\end{document}

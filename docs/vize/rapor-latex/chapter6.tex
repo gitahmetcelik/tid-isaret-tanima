@@ -1,0 +1,30 @@
+\section{Sonuç}
+\label{AltinciBolum}
+
+Projenin ilk dikey dilimi ve model karşılaştırması tamamlanmıştır. Veri setinin
+resmî bölmeleri doğrulanmış, açılamayan dosyalar ayıklanmış ve tüm videolar için
+iskelet koordinatları çıkarılmıştır. 226 sınıfta 60 epoch eğitilen iki katmanlı
+BiGRU modeli yüzde 88,24 test doğruluğuna, yüzde 30 daha az parametreye sahip
+1B-CNN + Transformer modeli ise yüzde 88,83 test doğruluğuna (doğrulama yüzde
+90,02) ulaşarak yüzde 85 hedefini aşmıştır. Temel modelin int8 LiteRT sürümü
+3,19 MB'tır ve 10 MB'lık boyut hedefinin oldukça altındadır. Python ve telefon
+çıktıları arasındaki yüzde 99,5 uyum, dönüşümün model davranışını bozmadığını
+göstermektedir.
+
+Bununla birlikte iki konu henüz kapanmamıştır. Birincisi hız: model çıkarımı 48 ms
+olsa da uçtan uca hat yaklaşık 9 FPS'te kalmakta ve 15 FPS hedefini
+tutmamaktadır. İkincisi canlı kullanım: kaydedilmiş test verisinde yüzde 88--89
+doğruluk alınırken canlı kamera denemelerinde tahmin güvenleri yüzde 3--20
+aralığına düşmektedir. Sorunun MediaPipe'ın canlı görüntüdeki nokta kalitesinden
+mi, ön işleme farkından mı yoksa segmentleme kurallarından mı kaynaklandığı henüz
+ayrıştırılamamıştır. Aynı videoların hem Python hem telefon üzerinde çıkarılıp
+nokta bazında karşılaştırılması planlanmaktadır.
+
+Sonraki adımlarda her iki modelin üç farklı tohumla koşularak standart sapma
+aralığının raporlanması ve 1B-CNN + Transformer modelinin de LiteRT int8
+formatına aktarılarak telefon üzerindeki çıkarım süresinin BiGRU ile
+karşılaştırılması hedeflenmektedir. Saha değerlendirmesi için ön kamera
+aynalaması ve ışık değişimlerini kapsayan, en az 30 işaret ve farklı kullanıcıları
+içeren bir gönüllü test protokolü hazırlanacaktır. Flutter ile Kotlin arasındaki
+olay kanalı akışı, uçak modu ve üç ekranlı uygulama testleri de takip eden
+kilometre taşlarında tamamlanacaktır.

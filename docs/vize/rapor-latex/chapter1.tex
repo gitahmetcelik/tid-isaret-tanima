@@ -1,0 +1,36 @@
+\clearpage
+\section{Özet}
+\label{CH:BolumOzet}
+
+Bu projede, işitme ve konuşma engelli bireylerin günlük iletişimde karşılaştığı
+sorunları azaltmak amacıyla akıllı telefon kamerasından alınan Türk İşaret Dili
+(TİD) hareketlerini tanıyıp yazıya çeviren bir sistem geliştirilmektedir. Sistem,
+işareti video olarak kaydedip bir sunucuya göndermek yerine telefonda çıkarılan
+iskelet koordinatları üzerinde çalışmaktadır. Böylece internet bağlantısına ihtiyaç
+kalmamakta, kamera görüntüsü de cihazdan dışarı çıkmamaktadır.
+
+Veri tarafında AUTSL veri setinin resmî \texttt{train}, \texttt{val} ve
+\texttt{test} bölmeleri kullanılmıştır. Bölmeler arasında işaretçi kesişmediği
+doğrulanmış, açılamayan 11 video tespit edilerek çıkarım dışında bırakılmıştır.
+Her karede iki elin 21'er noktası ve üst gövdeye ait 7 nokta Google MediaPipe
+Tasks API ile çıkarılmıştır. Koordinatlar omuz ortasına göre ötelenmiş ve omuz
+genişliğine bölünmüş, değişken uzunluktaki diziler 64 kareye örneklenmiştir.
+
+Sınıflandırma aşamasında PyTorch ile iki katmanlı, iki yönlü bir GRU (BiGRU)
+temel modeli ve karşılaştırma amacıyla üç katmanlı 1B-CNN + iki katmanlı
+Transformer modeli kurulmuştur. Aynı veri ve artırma düzeninde 60 epoch sonunda
+BiGRU modeli test kümesinde yüzde 88,24 (doğrulama yüzde 89,25), daha hafif olan
+1B-CNN + Transformer modeli ise yüzde 88,83 (doğrulama yüzde 90,02) Top-1
+doğruluğa ulaşarak tez önerisindeki yüzde 85 hedefini aşmıştır. Temel modelin
+LiteRT int8 sürümü 3,19 MB boyutundadır ve aynı 200 test örneği Python ile
+telefon üzerinde çalıştırıldığında tahminlerin yüzde 99,5'i birbiriyle aynı
+çıkmıştır.
+
+Mobil tarafta Kotlin/CameraX ile kurulan kamera ve çıkarım hattı Flutter
+arayüzüne bağlanmıştır. Telefonda model çıkarımı ortalama 48 ms sürmektedir.
+Buna karşılık kamera, MediaPipe ve arayüz dâhil uçtan uca hız yaklaşık 9 FPS'tir
+ve hedeflenen 15 FPS'in altında kalmaktadır. Canlı kamera kullanımında tahmin
+güvenlerinin kaydedilmiş veriye göre belirgin biçimde düştüğü gözlenmiş, nedeni
+henüz kesinleştirilememiştir. Bu iki konu sonuç bölümünde ayrıca tartışılmaktadır.
+
+\clearpage
