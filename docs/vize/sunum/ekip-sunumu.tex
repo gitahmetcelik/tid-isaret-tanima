@@ -56,21 +56,19 @@
 % 2
 \begin{frame}{Ekip ve iş bölümü}
 \centering
-\begin{tabular}{@{}lll@{}}
+\begin{tabular}{@{}ll@{}}
 \toprule
-\textbf{Kim} & \textbf{Sorumluluk} & \textbf{Bu dönemde yapılan} \\
+\textbf{Sorumluluk alanı} & \textbf{Sorumlu} \\
 \midrule
-Mustafa Küpeli & Veri hazırlığı, veri hattı, & Veri setinin doğrulanması, \\
- & normalizasyon & nokta çıkarımı \\[2mm]
-Mustafa Göktepe & Model, eğitim, optimizasyon & İki modelin eğitimi, karşılaştırma, \\
- & & hata analizi \\[2mm]
-Ahmet Çelik & Mobil uygulama, arayüz, & Kamera ve çıkarım hattı, \\
- & donanım entegrasyonu & Flutter arayüzü \\
+Veri hazırlığı, veri hattı, normalizasyon & Mustafa Küpeli \\
+Model, eğitim, optimizasyon & Mustafa Göktepe \\
+Mobil uygulama, arayüz, donanım entegrasyonu & Ahmet Çelik \\
 \bottomrule
 \end{tabular}
 
-\vspace{5mm}
+\vspace{6mm}
 \begin{itemize}
+\item Her alanın bir sorumlusu var, ama işleri birlikte yürüttük: veri, model ve uygulama aynı hattın parçaları olduğu için kararları ortak aldık.
 \item Ortak depo GitHub'da; herkes kendi dalında çalışıp birleştirme isteği açıyor.
 \item Deney sonuçları \texttt{experiments/} klasöründe kayıtlı, tekrar üretilebiliyor.
 \end{itemize}
@@ -119,7 +117,6 @@ Sürüm takibi ve rapor & Git, GitHub, \LaTeX \\
 
 % 5
 \begin{frame}{Veriyi nasıl hazırladık?}
-\framesubtitle{Veri hattı: Mustafa Küpeli}
 \begin{columns}[T]
 \begin{column}{0.48\textwidth}
 \textbf{Veri seti kontrolü}
@@ -144,7 +141,6 @@ Sürüm takibi ve rapor & Git, GitHub, \LaTeX \\
 
 % 6
 \begin{frame}{Hangi modelleri kurduk?}
-\framesubtitle{Model: Mustafa Göktepe}
 \centering
 \begin{tabular}{@{}lll@{}}
 \toprule
@@ -167,7 +163,6 @@ Parametre & 2.114.018 & 1.473.634 \\
 
 % 7
 \begin{frame}{Nasıl eğittik?}
-\framesubtitle{Model: Mustafa Göktepe}
 \begin{columns}[c]
 \begin{column}{0.36\textwidth}
 \small
@@ -188,7 +183,6 @@ Parametre & 2.114.018 & 1.473.634 \\
 
 % 8
 \begin{frame}{Ne elde ettik?}
-\framesubtitle{Model: Mustafa Göktepe}
 \centering
 \begin{tabular}{@{}lrrrr@{}}
 \toprule
@@ -218,7 +212,6 @@ BiGRU-2x256 & 87,98 $\pm$ 0,23 & 89,38 \\
 
 % 9
 \begin{frame}{Model nerede yanılıyor?}
-\framesubtitle{Model: Mustafa Göktepe}
 \begin{columns}[c]
 \begin{column}{0.42\textwidth}
 \includegraphics[width=\textwidth]{karisiklik_matrisi.png}
@@ -268,7 +261,6 @@ ağır & hafif & 6 / 17 \\
 
 % 11
 \begin{frame}{Mobil uygulamayı nasıl kurduk?}
-\framesubtitle{Mobil: Ahmet Çelik}
 \begin{columns}[T]
 \begin{column}{0.48\textwidth}
 \textbf{Yapı}
