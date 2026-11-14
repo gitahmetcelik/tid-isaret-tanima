@@ -1,0 +1,400 @@
+% Vize sunumu, ekibin tamami. Derlemek icin: ./derle.sh  ->  ekip-sunumu.pdf
+% Sayilar experiments/ altindaki JSON kayitlarindan, sekiller rapor klasorunden geliyor.
+\documentclass[aspectratio=169,11pt]{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{booktabs}
+
+\graphicspath{{../rapor-latex/grafik/}}
+
+\usetheme{default}
+\usefonttheme{professionalfonts}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}{\hfill\insertframenumber\,/\,\inserttotalframenumber\hspace{4mm}\vspace{3mm}}
+\setbeamertemplate{itemize items}[circle]
+\definecolor{lacivert}{RGB}{20,50,95}
+\setbeamercolor{frametitle}{fg=lacivert}
+\setbeamercolor{title}{fg=lacivert}
+\setbeamercolor{structure}{fg=lacivert}
+\setbeamerfont{frametitle}{series=\bfseries}
+\setlength{\leftmargini}{1.2em}
+
+\setbeamerfont{framesubtitle}{size=\small}
+\setbeamercolor{framesubtitle}{fg=gray}
+
+\title{Türk İşaret Dili Tabanlı Gerçek Zamanlı El Hareketi Tanıma ve Çeviri Sistemi}
+\subtitle{Bitirme Projesi Ara Raporu}
+\author{Mustafa Göktepe \quad Ahmet Çelik \quad Mustafa Küpeli \\[1mm] {\small Danışman: Ar.\ Gör.\ Hayri Öztürk}}
+\institute{Erciyes Üniversitesi, Bilgisayar Mühendisliği}
+\date{Kasım 2026}
+
+\begin{document}
+
+\begin{frame}[plain]
+\titlepage
+\end{frame}
+
+\begin{frame}{Projeyi bir slaytta anlatırsak}
+\framesubtitle{1. Özet}
+\begin{itemize}
+\item Telefon kamerasından alınan TİD işaretini tanıyıp yazıya çeviren bir sistem geliştiriyoruz.
+\item Video yerine telefonda çıkarılan iskelet koordinatlarıyla çalışıyoruz; internet gerekmiyor, görüntü cihazdan çıkmıyor.
+\item AUTSL veri setinde 226 işaret için iki model eğittik: test doğruluğu yüzde 88,24 ve yüzde 88,83. Hedef yüzde 85'ti.
+\item Telefondaki model 3,19 MB; Python ile telefon tahminleri yüzde 99,5 aynı.
+\item Açık kalan iki konu: uçtan uca hız 9 FPS (hedef 15) ve canlı kamerada düşen tahmin güveni.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Neyi çözmek istiyoruz?}
+\framesubtitle{2. Motivasyon}
+\begin{itemize}
+\item İşaret dili bilmeyen biriyle iletişim çoğu zaman yazıya ya da bir yakının tercümanlığına kalıyor.
+\item Hastane, banka, resmî daire gibi yerlerde bu hem zaman kaybı hem mahremiyet sorunu.
+\end{itemize}
+
+\vspace{4mm}
+\textbf{Hedefimiz}
+\begin{itemize}
+\item Telefon kamerasıyla TİD işaretini tanıyıp yazıya çeviren bir uygulama
+\item Ek donanım yok: eldiven ya da derinlik kamerası kullanmıyoruz
+\item İnternet yok: model telefonun içinde, görüntü cihazdan çıkmıyor
+\item Kapsam kelime düzeyi (226 işaret); cümle çevirisi kapsam dışı
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Önce birlikte araştırdık}
+\framesubtitle{3. Projenin içerdiği yenilik unsuru}
+\begin{itemize}
+\item Literatürdeki çalışmaların çoğu yabancı işaret dilleri (ASL, BSL) üzerine.
+\item Çoğu çözüm sunucuda çalışan büyük modeller kullanıyor: internet gerekiyor, görüntü cihazdan çıkıyor.
+\item Eldiven ya da derinlik kamerası isteyen çözümler var; maliyetli ve günlük kullanıma uygun değil.
+\item TİD için açık ve büyük veri seti olarak AUTSL'yi bulduk: 226 işaret, 43 işaretçi, resmî bölmeleri hazır.
+\end{itemize}
+
+\vspace{3mm}
+Bu araştırma bize boşluğun nerede olduğunu gösterdi: TİD'i telefonda, çevrimdışı tanıyan hafif bir sistem.
+\end{frame}
+
+\begin{frame}{Sonra kararlarımızı verdik}
+\framesubtitle{3. Projenin içerdiği yenilik unsuru}
+\begin{columns}[T]
+\begin{column}{0.56\textwidth}
+\textbf{Tasarım kararları}
+\begin{itemize}
+\item Girdi video karesi değil, iskelet koordinatları olacak
+\item Nokta çıkarımı eğitimde de telefonda da aynı MediaPipe API'siyle yapılacak
+\item Sistem tamamen çevrimdışı çalışacak, model uygulamanın içinde taşınacak
+\item Kapsam kelime düzeyi; cümle çevirisi gelecek çalışma
+\end{itemize}
+\end{column}
+\begin{column}{0.4\textwidth}
+\textbf{Koyduğumuz hedefler}
+\begin{itemize}
+\item Test doğruluğu en az yüzde 85
+\item Model boyutu 10 MB'ın altında
+\item Uçtan uca hız 15 FPS
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Ekip ve iş bölümü}
+\framesubtitle{Görev dağılımı}
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Sorumluluk alanı} & \textbf{Sorumlu} \\
+\midrule
+Veri hazırlığı, veri hattı, normalizasyon & Mustafa Küpeli \\
+Model, eğitim, optimizasyon & Mustafa Göktepe \\
+Mobil uygulama, arayüz, donanım entegrasyonu & Ahmet Çelik \\
+\bottomrule
+\end{tabular}
+
+\vspace{6mm}
+\begin{itemize}
+\item Her alanın bir sorumlusu var, ama işleri birlikte yürüttük: veri, model ve uygulama aynı hattın parçaları olduğu için kararları ortak aldık.
+\item Ortak depo GitHub'da; herkes kendi dalında çalışıp birleştirme isteği açıyor.
+\item Deney sonuçları \texttt{experiments/} klasöründe kayıtlı, tekrar üretilebiliyor.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Projeye nasıl başladık?}
+\framesubtitle{4. Yöntem ve metotlar}
+\begin{itemize}
+\item 5 Ekim'de açılış toplantısını yapıp iş bölümünü netleştirdik.
+\item Ortak depoyu ve erişim izinlerini kurduk, AUTSL verisini indirip doğruladık (29 Ekim).
+\item İlk hedefimiz uçtan uca çalışan dar bir dilimdi: veri hazırlığı, nokta çıkarımı, model eğitimi, mobil dönüşüm.
+\item Bu dilim 7 Kasım'da tamamlandı; sonraki slaytlar bu dört adımı sırayla anlatıyor.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Neleri kullandık?}
+\framesubtitle{4. Yöntem ve metotlar}
+\centering
+\small
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{İş} & \textbf{Araç} \\
+\midrule
+Veri seti & AUTSL (226 işaret, 43 işaretçi, 36.302 video) \\
+El ve gövde noktaları & Google MediaPipe Tasks (hand landmarker, pose landmarker lite) \\
+Model eğitimi & Python, PyTorch (Apple M4 ve RTX 3050 üzerinde) \\
+Ölçüm ve grafikler & scikit-learn, matplotlib \\
+Telefona aktarım & Keras üzerinden LiteRT (\texttt{.tflite}), int8 nicemleme \\
+Kamera ve çıkarım & Kotlin, CameraX \\
+Arayüz & Flutter \\
+Sürüm takibi ve rapor & Git, GitHub, \LaTeX \\
+\bottomrule
+\end{tabular}
+\end{frame}
+
+\begin{frame}{Sistemi nasıl kurduk?}
+\framesubtitle{4. Yöntem ve metotlar}
+\centering
+\footnotesize
+\setlength{\fboxsep}{4pt}
+\fbox{Kamera} $\rightarrow$
+\fbox{MediaPipe} $\rightarrow$
+\fbox{Normalizasyon} $\rightarrow$
+\fbox{$64\times100$ girdi} $\rightarrow$
+\fbox{Model} $\rightarrow$
+\fbox{Kelime}
+
+\vspace{7mm}
+\normalsize
+\begin{itemize}
+\item Modele video karesi değil, iskelet koordinatları veriyoruz. Model küçük kalıyor, ham görüntü işlenmiyor.
+\item Nokta çıkarımını eğitimde de telefonda da aynı MediaPipe API'siyle yaptık; iki taraf arasında nokta sırası ve normalizasyon farkı olmasın diye.
+\item Eğitim bilgisayarda, çıkarım tamamen telefonda.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Veriyi nasıl hazırladık?}
+\framesubtitle{4. Yöntem ve metotlar}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\textbf{Veri seti kontrolü}
+\begin{itemize}
+\item AUTSL'nin resmî bölmelerini kullandık: eğitim, doğrulama, test
+\item Bölmelerde aynı işaretçi yok; bunu ayrıca kontrol ettik
+\item 11 video yarım inmişti, açılmadı; listeleyip dışarıda bıraktık
+\item Kalan: 28.132 eğitim, 4.418 doğrulama, 3.741 test
+\end{itemize}
+\end{column}
+\begin{column}{0.48\textwidth}
+\textbf{Nokta çıkarımı}
+\begin{itemize}
+\item Her karede iki el $\times$ 21 nokta, gövdeden 7 nokta
+\item El bulunma oranı: sol yüzde 82, sağ yüzde 86
+\item Omuz ortasına öteledik, omuz genişliğine böldük: uzaklık ve boy etkilemiyor
+\item Kare başına 100 sayı, her video 64 kare
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Hangi modelleri kurduk?}
+\framesubtitle{4. Yöntem ve metotlar}
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+ & \textbf{BiGRU-2x256} & \textbf{1B-CNN + Transformer} \\
+\midrule
+Yapı & 2 katman, iki yönlü GRU & 3 evrişim + 2 Transformer katmanı \\
+Zaman bilgisi & Kare kare, ileri ve geri & Yerel evrişim, sonra dikkat \\
+Dizi uzunluğu & 64 & 64 $\rightarrow$ 32 (stride 2) \\
+Parametre & 2.114.018 & 1.473.634 \\
+\bottomrule
+\end{tabular}
+
+\vspace{5mm}
+\begin{itemize}
+\item Önce BiGRU'yu temel model olarak kurduk; telefonda çalışan sürüm bu.
+\item Tez önerisinde söz verdiğimiz karşılaştırma için ikinci modeli ekledik.
+\item İkisinde de çıkışta zaman ortalaması alıyoruz; işaretin hangi karede bittiği belli olmadığı için.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Nasıl eğittik?}
+\framesubtitle{4. Yöntem ve metotlar}
+\begin{columns}[c]
+\begin{column}{0.36\textwidth}
+\small
+\begin{itemize}
+\item İki modele aynı ayarları verdik
+\item 60 epoch, AdamW, lr $2\times10^{-3}$
+\item Kosinüs azaltım, batch 128
+\item Kareleri seyrelterek telefonun düşük FPS'ine benzettik
+\item Kırpma, döndürme, ölçek artırması
+\item Test kümesine eğitim bitince bir kez baktık
+\end{itemize}
+\end{column}
+\begin{column}{0.62\textwidth}
+\includegraphics[width=\textwidth]{egitim_egrisi.png}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Ne elde ettik?}
+\framesubtitle{4. Yöntem ve metotlar}
+\centering
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+\textbf{Model} & \textbf{Parametre} & \textbf{Doğrulama (\%)} & \textbf{Test (\%)} & \textbf{Macro F1 (\%)} \\
+\midrule
+BiGRU-2x256 & 2.114.018 & 89,23 & 88,24 & 88,09 \\
+1B-CNN + Transformer & 1.473.634 & \textbf{89,97} & \textbf{88,83} & \textbf{88,61} \\
+\bottomrule
+\end{tabular}
+
+\vspace{4mm}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+\textbf{Üç tohum (0, 1, 2)} & \textbf{Test ort.\ $\pm$ ss (\%)} & \textbf{Doğrulama ort.\ (\%)} \\
+\midrule
+BiGRU-2x256 & 87,98 $\pm$ 0,23 & 89,38 \\
+1B-CNN + Transformer & \textbf{89,42 $\pm$ 0,52} & \textbf{90,37} \\
+\bottomrule
+\end{tabular}
+
+\vspace{4mm}
+\begin{itemize}
+\item Tez önerisindeki yüzde 85 hedefini iki modelde de geçtik.
+\item Küçük model üç tohumun üçünde de önde çıktı.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Model nerede yanılıyor?}
+\framesubtitle{4. Yöntem ve metotlar}
+\begin{columns}[c]
+\begin{column}{0.42\textwidth}
+\includegraphics[width=\textwidth]{karisiklik_matrisi.png}
+\end{column}
+\begin{column}{0.56\textwidth}
+\small
+\begin{tabular}{@{}llr@{}}
+\toprule
+\textbf{Gerçek} & \textbf{Tahmin} & \textbf{Hata} \\
+\midrule
+okul & çorba & 8 / 17 \\
+kötü & para & 7 / 17 \\
+sabun & ayakkabı & 7 / 17 \\
+ağır & hafif & 6 / 17 \\
+\bottomrule
+\end{tabular}
+
+\vspace{4mm}
+\begin{itemize}
+\item Test kümesindeki 3.741 örnek için karışıklık matrisi çıkardık.
+\item Hatalar rastgele değil: el formu ve konumu aynı olan işaretler karışıyor.
+\item Güven eşiğini 0,6 seçtik: örneklerin yüzde 75'i kabul ediliyor, bunlarda doğruluk yüzde 96,8.
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Modeli telefona nasıl taşıdık?}
+\framesubtitle{4. Yöntem ve metotlar}
+\centering
+\footnotesize
+\setlength{\fboxsep}{4pt}
+\fbox{PyTorch ağırlıkları} $\rightarrow$
+\fbox{NumPy} $\rightarrow$
+\fbox{Keras} $\rightarrow$
+\fbox{LiteRT fp32} $\rightarrow$
+\fbox{LiteRT int8}
+
+\vspace{7mm}
+\normalsize
+\begin{itemize}
+\item Dosya boyutu 9,43 MB'tan 3,19 MB'a indi; hedefimiz 10 MB'ın altıydı.
+\item int8 sürümün test doğruluğu yüzde 88,0; kayıp yok.
+\item Aynı 200 test örneğini hem Python'da hem telefonda çalıştırdık: tahminlerin yüzde 99,5'i aynı.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Mobil uygulamayı nasıl kurduk?}
+\framesubtitle{4. Yöntem ve metotlar}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\textbf{Yapı}
+\begin{itemize}
+\item Kamera, MediaPipe ve LiteRT Kotlin tarafında (CameraX)
+\item Ekranlar ve durum yönetimi Flutter'da
+\item İki taraf olay kanallarıyla (event channel) konuşuyor
+\item Model dosyası uygulamanın içinde, çevrimdışı çalışıyor
+\end{itemize}
+\end{column}
+\begin{column}{0.48\textwidth}
+\textbf{Ölçümler}
+\begin{itemize}
+\item Model çıkarımı ortalama 48 ms (Redmi Note 10 Pro)
+\item Uçtan uca hız yaklaşık 9 FPS; hedef 15 FPS
+\item Darboğaz model değil, kare başına çalışan iki MediaPipe modeli
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Henüz çözemediklerimiz}
+\framesubtitle{4. Yöntem ve metotlar}
+\begin{itemize}
+\item \textbf{Canlı kamerada güven düşük.} Kayıtlı test verisinde yüzde 88--89 alırken canlı denemede tahmin güveni yüzde 3--20 aralığına düşüyor.
+\item Neden henüz ayrışmadı: MediaPipe'ın canlı görüntüdeki nokta kalitesi, ön işleme farkı ya da segmentleme kuralları olabilir.
+\item Planımız: aynı videoyu hem Python'da hem telefonda çıkarıp noktaları tek tek karşılaştırmak.
+\end{itemize}
+
+\vspace{3mm}
+\begin{itemize}
+\item \textbf{Hız hedefin altında.} 9 FPS'teyiz, hedef 15 FPS.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Takvimde neredeyiz?}
+\framesubtitle{5. Proje planı}
+\centering
+\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Kilometre taşı} & \textbf{Tarih} & \textbf{Durum} \\
+\midrule
+M0: depo, erişim, veri doğrulama & 29 Ekim & Tamamlandı \\
+M1: nokta çıkarımı, iki modelin eğitimi, LiteRT & 7 Kasım & Tamamlandı \\
+M2: ara rapor, karşılaştırma ve hata analizi & 20 Kasım & Devam ediyor \\
+M3: üç tohum analizi, nihai model & 4 Aralık & Devam ediyor \\
+M4: üç ekranlı uygulama, uçak modu testleri & 11 Aralık & Planlandı \\
+M5: gönüllü testleri, performans ölçümleri & 18 Aralık & Planlandı \\
+M6: tez teslimi & 1 Ocak & Planlandı \\
+\bottomrule
+\end{tabular}
+
+\end{frame}
+
+\begin{frame}{Nereye vardık?}
+\framesubtitle{6. Sonuç}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\textbf{Tamamladıklarımız}
+\begin{itemize}
+\item Veri doğrulandı, tüm videolar için noktalar çıkarıldı
+\item İki model de yüzde 85 hedefini geçti (yüzde 88,24 ve 88,83)
+\item int8 model 3,19 MB; 10 MB hedefinin altında
+\item Python ile telefon çıktıları yüzde 99,5 uyumlu
+\end{itemize}
+\end{column}
+\begin{column}{0.48\textwidth}
+\textbf{Sıradaki işler}
+\begin{itemize}
+\item Canlı kamera sorununu nokta bazında karşılaştırmayla ayırmak
+\item 1B-CNN + Transformer'ı LiteRT int8'e aktarıp telefonda BiGRU ile karşılaştırmak
+\item En az 30 işaret ve farklı kullanıcılarla gönüllü testi
+\item Üç ekranlı uygulama ve uçak modu testleri
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
+\end{document}

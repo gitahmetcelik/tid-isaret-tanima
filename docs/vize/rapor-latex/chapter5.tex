@@ -1,0 +1,33 @@
+\section{Proje Planı}
+\label{BesinciBolum}
+
+Projenin kilometre taşları ve 3 Kasım 2026 itibarıyla durumları
+Tablo~\ref{tab:plan} içinde verilmiştir. M1 kapsamındaki nokta çıkarımı, BiGRU ve
+1B-CNN + Transformer modellerinin 60 epoch eğitimi, hata analizi ve LiteRT
+dönüşümü tamamlanmış; çoklu tohum (seed) koşuları ve mobil uygulamanın kalan
+ekranları M3 ve M4 altında planlanmıştır.
+
+\begin{table}[H]
+\centering
+\caption{Kilometre taşları ve durumları}
+\label{tab:plan}
+\small
+\begin{tabularx}{\textwidth}{@{}l l l X@{}}
+\toprule
+\textbf{Kilometre Taşı} & \textbf{Tarih} & \textbf{Durum} & \textbf{Çıktı / Açıklama} \\
+\midrule
+T1 & 5 Ekim 2026 & Tamamlandı & Açılış toplantısı ve iş bölümü. \\
+M0 & 29 Ekim 2026 & Tamamlandı & Depo ve erişim izinleri, AUTSL verisinin doğrulanması. \\
+M1 & 7 Kasım 2026 & Tamamlandı & Nokta çıkarımı, BiGRU ve 1B-CNN+Transformer eğitimi, fp32/int8 LiteRT modelleri. \\
+M2 & 20 Kasım 2026 & Devam ediyor & Ara raporun ve model karşılaştırma/hata analizi grafiklerinin teslimi. \\
+M3 & 4 Aralık 2026 & Planlandı & Çoklu tohum (3 seed) standart sapma analizi ve nihai model dondurma. \\
+M4 & 11 Aralık 2026 & Planlandı & Üç ekranlı mobil uygulamanın ve uçak modu testlerinin tamamlanması. \\
+M5 & 18 Aralık 2026 & Planlandı & Gönüllü testleri ve performans ölçümlerinin tamamlanması. \\
+M6 & 1 Ocak 2027 & Planlandı & Tez teslimi ve Turnitin kontrolü. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Ara sınav haftası (9--15 Kasım) kod yazmak yerine her iki modelin üç farklı
+tohumla (\texttt{seed 0, 1, 2}) arka planda koşulmasına ayrılmıştır; böylece
+sınav dönüşünde ortalama ve standart sapma tabloları hazır olacaktır.

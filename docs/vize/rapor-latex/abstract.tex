@@ -1,0 +1,12 @@
+Bu çalışma, Türk İşaret Dili (TİD) hareketlerini akıllı telefon kamerası üzerinden algılayarak metne dönüştüren gerçek zamanlı bir tanıma sistemi geliştirmeyi amaçlamaktadır. AUTSL veri seti üzerinde Google MediaPipe Tasks API kullanılarak el ve gövde iskelet koordinatları çıkarılmış, omuz genişliğine göre normalize edilmiş ve sabit uzunluklu dizilere dönüştürülmüştür. Elde edilen verilerle 226 sınıflı iki yönlü GRU (BiGRU) ve 1B-CNN + Transformer mimarileri aynı koşullarda 60 epoch eğitilerek karşılaştırılmıştır. 3.741 test videosu üzerinde BiGRU modeli yüzde 88,24 Top-1 doğruluk (doğrulama yüzde 89,23), yüzde 30 daha az parametreye sahip 1B-CNN + Transformer modeli ise yüzde 88,83 Top-1 doğruluk (doğrulama yüzde 89,97) elde etmiştir. Temel BiGRU modeli LiteRT formatına dönüştürülerek dinamik aralık int8 nicemleme uygulanmış, model boyutu 9,43 MB'dan 3,19 MB'a düşürülmüştür. Kotlin, CameraX ve LiteRT tabanlı mobil çıkarım testlerinde ortalama işlem süresi yaklaşık 48 ms/örnek olarak ölçülmüştür.
+
+\vspace{3mm}
+
+ \begin{tabular}{ll}
+ 	{\textbf{Keywords}:} & { Türk İşaret Dili, MediaPipe, BiGRU, Transformer, LiteRT.}  \\	   
+ \end{tabular} 
+ 
+
+
+
+

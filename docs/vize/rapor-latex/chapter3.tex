@@ -1,0 +1,26 @@
+\section{Projenin İçerdiği Yenilik Unsuru}
+\label{UcuncuBolum}
+
+Literatürdeki çalışmaların önemli bir kısmı yabancı işaret dilleri (ASL, BSL vb.)
+üzerinedir ve genellikle sunucu tarafında çalışan büyük modeller kullanır. Bu
+proje doğrudan TİD üzerine kurulmuştur ve AUTSL'nin resmî bölmelerini kullanarak
+tekrarlanabilir bir değerlendirme düzeni oluşturur~\cite{AUTSL2020}. Kullanılan
+bölmelerde işaretçi kesişmesi bulunmadığı için elde edilen doğruluk, modelin daha
+önce görmediği kişiler üzerinden ölçülmüş olur.
+
+Yenilik iddiası modelin kendisinden çok, hattın uçtan uca ve telefonda
+çalışmasındadır. Şu üç nokta öne çıkmaktadır:
+
+\begin{itemize}
+  \item Girdi olarak video karesi değil iskelet koordinatları kullanılmıştır.
+        Model 2,1 milyon parametreyle sınırlı kaldığı için 10 MB'lık boyut hedefi
+        rahatça sağlanmış, ayrıca ham görüntü işlenmediği için kişisel veri yükü
+        azalmıştır.
+  \item Nokta çıkarımı hem eğitim hem uygulama tarafında aynı MediaPipe Tasks API
+        ile yapılmıştır. Bu, iki taraf arasındaki nokta sıralaması ve
+        normalizasyon farkından doğabilecek hataları büyük ölçüde ortadan
+        kaldırmıştır. Dönüşüm sonrası Python ve LiteRT çıktılarının yüzde 99,5
+        oranında aynı olması bunu desteklemektedir.
+  \item Sistem tamamen çevrimdışı çalışmaktadır; model dosyası uygulamanın içinde
+        taşınmakta ve çıkarım cihazda yapılmaktadır.
+\end{itemize}

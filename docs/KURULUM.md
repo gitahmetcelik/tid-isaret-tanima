@@ -99,3 +99,19 @@ Beklenen: 10 sınıfta doğrulama ~%95, test ~%94 (Ahmet'in makinesinde).
 |---|---|
 | Mustafa Küpel | Kurulumu bitir, `nvidia-smi` gönder. Tüm veri nokta çıkarımı Ahmet'in makinesinde sürüyor; senin makinen eğitim için (RTX 5060) kullanılacak. 10 sınıflık denemeyi çalıştır, sonucu `docs/worklog/` içine yaz. |
 | Mustafa Göktepe | Kurulumu bitir, 10 sınıflık denemeyi çalıştır. `ml/train_gru.py` üzerinde Transformer / 1B-CNN modelini ekleme çalışmasını başlat (`ip3-transformer` dalı). |
+
+## 9. Mac (Apple Silicon) ve VS Code notları
+
+Yukarıdaki komutlar Windows içindir. Mac'te farklar:
+
+- Python yolu `ml/.venv/Scripts/python.exe` yerine `ml/.venv/bin/python`. Eğitim CUDA yerine MPS ile koşar
+  (`cu128` indeksi gerekmez, düz `pip install torch` yeterli).
+- Ortam: `python3 -m venv ml/.venv`, ardından
+  `ml/.venv/bin/python -m pip install torch numpy matplotlib scikit-learn mediapipe opencv-python pandas tqdm`.
+- Rapor: TinyTeX ile derlenir (`docs/vize/rapor-latex/derle.sh`). `pdflatex` PATH'te yoksa betik
+  `~/Library/TinyTeX/bin/` altına bakar.
+- VS Code: depo kökünü açın. `.vscode/launch.json` içindeki hazır yapılandırmalar Çalıştır ve Hata Ayıkla
+  (Cmd+Shift+D) menüsünde görünür: 10 sınıflık hızlı eğitim denemesi, hata analizi, karşılaştırma tablosu,
+  eşik kalibrasyonu, segmentleme simülasyonu. Rapor derlemesi Cmd+Shift+B.
+- Betikler `checkpoints/<ad>.pt` bekler. 226 sınıflık koşuların ağırlıkları `compare_models.py` ile üretilir
+  (`cnn_transformer_all_s0.pt`, `gru_all_s0.pt`); `ml/export/gru226.pt` için `cp ml/export/gru226.pt checkpoints/`.
